@@ -63,7 +63,7 @@ class CContactsModel implements ISuspensionBean {
 
   CContactsModel.withTagAndTitle(this._contactName, this._tag);
 
-  CContactsModel empty() {
+  static CContactsModel empty() {
     return CContactsModel.withId(
       0,
       0,

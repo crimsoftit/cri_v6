@@ -5,6 +5,7 @@ import 'package:cri_v6/features/authentication/screens/signup/signup.dart';
 import 'package:cri_v6/features/authentication/screens/signup/verify_email.dart';
 import 'package:cri_v6/features/personalization/screens/contacts/contacts_screen.dart';
 import 'package:cri_v6/features/personalization/screens/contacts/widgets/contact_details/contact_detailz_screen.dart';
+import 'package:cri_v6/features/personalization/screens/contacts/widgets/contact_details/contact_txns_screen.dart';
 import 'package:cri_v6/features/personalization/screens/profile/profile.dart';
 import 'package:cri_v6/features/personalization/screens/settings/user_settings_screen.dart';
 import 'package:cri_v6/features/store/screens/home/home.dart';
@@ -33,9 +34,15 @@ class CAppRoutes {
     // ),
     GetPage(name: CRoutes.inventoryDetails, page: () => const CInvDetails()),
 
-    GetPage(name: CRoutes.sales, page: () => const CSalesScreen()),
+    GetPage(
+      name: CRoutes.sales,
+      page: () => const CSalesScreen(),
+    ),
 
-    GetPage(name: CRoutes.txns, page: () => const CTxnsScreen()),
+    GetPage(
+      name: CRoutes.txns,
+      page: () => const CTxnsScreen(),
+    ),
 
     GetPage(
       name: CRoutes.soldItemDetailsScreen,
@@ -75,6 +82,12 @@ class CAppRoutes {
       name: CRoutes.contactDetailsScreen,
       page: () {
         return const CContactDetailsScreen();
+      },
+    ),
+    GetPage(
+      name: CRoutes.contactTxnsScreen,
+      page: () {
+        return const CContactTxnsScreen();
       },
     ),
   ];

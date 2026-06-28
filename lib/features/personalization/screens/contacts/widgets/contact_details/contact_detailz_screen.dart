@@ -38,7 +38,7 @@ class CContactDetailsScreen extends StatelessWidget {
         return CVerticalProductShimmer(itemCount: 5);
       }
 
-      /// -- compute contact txns --
+      /// -- summarize contact txns --
       contactsController.summarizeContactTxns(
         contactItem.contactName,
         contactItem.contactPhone,
@@ -84,16 +84,6 @@ class CContactDetailsScreen extends StatelessWidget {
                   size: CSizes.iconMd,
                 ),
               ),
-
-              // IconButton(
-              //   onPressed: () {
-
-              //   },
-              //   icon: Icon(
-              //     Iconsax.notification,
-              //     color: isDarkTheme ? CColors.white : CColors.rBrown,
-              //   ),
-              // ),
             ],
           ),
           backgroundColor: CColors.rBrown.withValues(alpha: 0.2),
@@ -129,7 +119,9 @@ class CContactDetailsScreen extends StatelessWidget {
                       ),
                     ),
                   ),
-                  const SizedBox(height: CSizes.spaceBtnItems / 2.0),
+                  const SizedBox(
+                    height: CSizes.spaceBtnItems / 2.0,
+                  ),
                   SelectableText(
                     contactItem.contactName,
                     style: Theme.of(
@@ -262,7 +254,9 @@ class CContactDetailsScreen extends StatelessWidget {
 
                   /// -- phone number display --
                   CMenuTile(
-                    bgColor: CColors.rBrown.withValues(alpha: .2),
+                    bgColor: CColors.rBrown.withValues(
+                      alpha: .2,
+                    ),
                     containerWidth: CHelperFunctions.screenWidth() * .855,
                     displayTrailingWidget: true,
 
@@ -333,11 +327,15 @@ class CContactDetailsScreen extends StatelessWidget {
                     useCustomLeadingWiget: true,
                   ),
 
-                  const SizedBox(height: CSizes.spaceBtnItems / 3.0),
+                  const SizedBox(
+                    height: CSizes.spaceBtnItems / 3.0,
+                  ),
 
                   /// -- email address display --
                   CMenuTile(
-                    bgColor: CColors.rBrown.withValues(alpha: .2),
+                    bgColor: CColors.rBrown.withValues(
+                      alpha: .2,
+                    ),
                     containerWidth: CHelperFunctions.screenWidth() * .855,
                     displayTrailingWidget: false,
                     icon: Iconsax.user_edit,
@@ -413,7 +411,9 @@ class CContactDetailsScreen extends StatelessWidget {
 
                   // -- txns display --
                   CMenuTile(
-                    bgColor: CColors.rBrown.withValues(alpha: .2),
+                    bgColor: CColors.rBrown.withValues(
+                      alpha: .2,
+                    ),
                     containerWidth: CHelperFunctions.screenWidth() * .855,
                     displayTrailingWidget: true,
                     icon: Iconsax.user_edit,
@@ -428,10 +428,17 @@ class CContactDetailsScreen extends StatelessWidget {
                       ),
                       onPressed: () {},
                     ),
-                    onTap: () {},
+                    onTap: () {
+                      Get.toNamed(
+                        '/my_contacts/contact_txns',
+                        arguments: contactItem.contactId,
+                      );
+                    },
                     subTitleWidget: CRoundedContainer(
                       bgColor: CColors.transparent,
-                      padding: const EdgeInsets.only(bottom: 10.0),
+                      padding: const EdgeInsets.only(
+                        bottom: 10.0,
+                      ),
                       child: Text(
                         'credit: $userCurrency.${contactsController.contactInvoicedTxnsValue.value}',
                         style: Theme.of(context).textTheme.labelMedium!.apply(

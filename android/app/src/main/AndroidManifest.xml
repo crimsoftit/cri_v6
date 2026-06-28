@@ -34,9 +34,10 @@
 
 
     <application
-        android:label="cri_v6"
-        android:name="${applicationName}"
-        android:icon="@mipmap/ic_launcher">
+        android:enableOnBackInvokedCallback="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="rIntel"
+        android:name="${applicationName}">
         android:name="${applicationName}"
         <activity
             android:name=".MainActivity"

@@ -142,7 +142,9 @@ class CStoreScreen extends StatelessWidget {
               physics: BouncingScrollPhysics(),
               children: [
                 /// -- inventory list items --
-                CInvGridviewScreen(mainAxisExtent: 185.20),
+                CInvGridviewScreen(
+                  mainAxisExtent: 185.20,
+                ),
 
                 // -- almost obsolete --
                 // CItemsListView(
@@ -150,12 +152,20 @@ class CStoreScreen extends StatelessWidget {
                 // ),
 
                 /// -- transactions list view --
-                CTxnItemsListView(space: 'receipts'),
+                CTxnItemsListView(
+                  space: 'receipts',
+                ),
 
-                CTxnItemsListView(space: 'invoices'),
+                CTxnItemsListView(
+                  space: 'invoices',
+                ),
 
-                CTxnItemsListView(space: 'sales'),
-                CTxnItemsListView(space: 'refunds'),
+                CTxnItemsListView(
+                  space: 'sales',
+                ),
+                CTxnItemsListView(
+                  space: 'refunds',
+                ),
               ],
             ),
           ),

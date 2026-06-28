@@ -4,6 +4,7 @@ class CRoutes {
   // -- contacts
   static const contactsScreen = '/my_contacts';
   static const contactDetailsScreen = '/my_contacts/contact_details';
+  static const contactTxnsScreen = '/my_contacts/contact_txns';
 
   static const forgotPassword = '/forgot_password';
 
@@ -16,7 +17,6 @@ class CRoutes {
   static const inventory = '/inventory';
   static const inventoryDetails = '/inventory/item_details/';
 
-  
   static const login = '/login';
 
   static const notifications = '/notifications';

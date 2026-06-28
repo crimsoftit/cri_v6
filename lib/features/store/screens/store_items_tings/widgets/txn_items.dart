@@ -1,7 +1,9 @@
 import 'package:cri_v6/common/widgets/custom_shapes/containers/rounded_container.dart';
 import 'package:cri_v6/common/widgets/dividers/c_divider.dart' show CDivider;
 import 'package:cri_v6/common/widgets/shimmers/vert_items_shimmer.dart';
+import 'package:cri_v6/features/personalization/controllers/contacts_controller.dart';
 import 'package:cri_v6/features/personalization/controllers/user_controller.dart';
+import 'package:cri_v6/features/personalization/models/contacts_model.dart';
 import 'package:cri_v6/features/personalization/screens/no_data/no_data_screen.dart';
 import 'package:cri_v6/features/store/controllers/search_bar_controller.dart';
 import 'package:cri_v6/features/store/controllers/sync_controller.dart';
@@ -21,8 +23,15 @@ import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
 
 class CTxnItemsListView extends StatelessWidget {
-  const CTxnItemsListView({super.key, required this.space});
+  const CTxnItemsListView({
+    super.key,
+    required this.space,
+    this.contactId,
+    this.forContactScreen = false,
+  });
 
+  final int? contactId;
+  final bool forContactScreen;
   final String space;
 
   Widget buildSalesDetails(
@@ -100,6 +109,7 @@ class CTxnItemsListView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final contactsController = Get.put(CContactsController());
     final isDarkTheme = CHelperFunctions.isDarkMode(context);
     //final invController = Get.put(CInventoryController());
     final searchController = Get.put(CSearchBarController());
@@ -113,6 +123,15 @@ class CTxnItemsListView extends StatelessWidget {
     return SingleChildScrollView(
       child: Obx(() {
         var demItems = [];
+
+        CContactsModel contactItem = CContactsModel.empty();
+
+        if (forContactScreen) {
+          contactItem = contactsController.myContacts.firstWhere(
+            (element) => element.contactId == Get.arguments,
+          );
+        }
+
         switch (space) {
           case 'invoices':
             demItems.assignAll(
@@ -123,6 +142,25 @@ class CTxnItemsListView extends StatelessWidget {
                   : txnsController.invoices,
             );
             break;
+          case 'contact invoices':
+            demItems.assignAll(
+              txnsController.invoices.where(
+                (contactInvoice) {
+                  return contactInvoice.customerName.toLowerCase().contains(
+                        contactItem.contactName.toLowerCase(),
+                      ) &&
+                      (contactInvoice.customerContacts.toLowerCase().contains(
+                            contactItem.contactPhone.toLowerCase(),
+                          ) ||
+                          contactInvoice.customerContacts
+                              .toLowerCase()
+                              .contains(
+                                contactItem.contactEmail.toLowerCase(),
+                              ));
+                },
+              ),
+            );
+            break;
           case 'receipts':
             demItems.assignAll(
               searchController.showSearchField.value &&
@@ -130,6 +168,26 @@ class CTxnItemsListView extends StatelessWidget {
                       !txnsController.isLoading.value
                   ? txnsController.foundReceipts
                   : txnsController.receipts,
+            );
+            break;
+
+          case 'contact receipts':
+            demItems.assignAll(
+              txnsController.receipts.where(
+                (contactReceipt) {
+                  return contactReceipt.customerName.toLowerCase().contains(
+                        contactItem.contactName.toLowerCase(),
+                      ) &&
+                      (contactReceipt.customerContacts.toLowerCase().contains(
+                            contactItem.contactPhone.toLowerCase(),
+                          ) ||
+                          contactReceipt.customerContacts
+                              .toLowerCase()
+                              .contains(
+                                contactItem.contactEmail.toLowerCase(),
+                              ));
+                },
+              ),
             );
             break;
 
@@ -283,7 +341,10 @@ class CTxnItemsListView extends StatelessWidget {
                                     const SizedBox(
                                       height: CSizes.spaceBtnInputFields / 4,
                                     ),
-                                    space == 'receipts' || space == 'invoices'
+                                    space == 'receipts' ||
+                                            space == 'contact receipts' ||
+                                            space == 'contact invoices' ||
+                                            space == 'invoices'
                                         ? Row(
                                             crossAxisAlignment:
                                                 CrossAxisAlignment.center,
@@ -375,7 +436,10 @@ class CTxnItemsListView extends StatelessWidget {
                                     : CColors.rBrown,
                                 startIndent: 0,
                               ),
-                              space == 'receipts' || space == 'invoices'
+                              space == 'receipts' ||
+                                      space == 'invoices' ||
+                                      space == 'contact receipts' ||
+                                      space == 'contact invoices'
                                   ? Row(
                                       mainAxisAlignment:
                                           MainAxisAlignment.spaceEvenly,
