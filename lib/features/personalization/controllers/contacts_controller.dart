@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 //import 'package:azlistview/azlistview.dart';
@@ -27,6 +28,7 @@ import 'package:cri_v6/utils/popups/snackbars.dart';
 import 'package:cri_v6/utils/validators/validation.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_contacts/flutter_contacts.dart' hide Email;
 import 'package:flutter_email_sender/flutter_email_sender.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
@@ -34,6 +36,7 @@ import 'package:get_storage/get_storage.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:intl/intl.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:send_message/send_message.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:url_launcher/url_launcher_string.dart';
@@ -58,6 +61,7 @@ class CContactsController extends GetxController {
   final txtPhoneController = TextEditingController();
 
   final RxBool isLoading = false.obs;
+  final RxBool isImportingContacts = false.obs;
   final RxBool showContactsSearchField = false.obs;
   final RxBool processingContactsSync = false.obs;
   final RxBool undoTrashBtnPressed = false.obs;
@@ -1999,6 +2003,102 @@ class CContactsController extends GetxController {
           message:
               'An unknown error occurred while summarizing contact\'s transactional data! Please try again later...',
           title: 'Error summarizing contact\'s transactional data!',
+        );
+      }
+      rethrow;
+    }
+  }
+
+  /// -- check if contact is a customer or has transactions --
+  bool contactHasPurchases(CContactsModel contact) {
+    var contactTxns = txnsController.sales.where(
+      (contactTxn) {
+        return contactTxn.customerName.toLowerCase().contains(
+              contact.contactName.toLowerCase(),
+            ) &&
+            (contactTxn.customerContacts.toLowerCase().contains(
+                  contact.contactPhone.toLowerCase(),
+                ) ||
+                contactTxn.customerContacts.toLowerCase().contains(
+                  contact.contactEmail.toLowerCase(),
+                ));
+      },
+    );
+
+    if (contactTxns.isEmpty) {
+      return false;
+    } else {
+      return true;
+    }
+  }
+
+  /// -- import device contacts --
+  Future<void> importDeviceContacts() async {
+    try {
+      isImportingContacts.value = true;
+      final contactsPermissionStatus = await Permission.contacts.request();
+
+      if (contactsPermissionStatus.isGranted) {
+        List<Contact> deviceContacts = await FlutterContacts.getAll();
+        var encodedContactsData = jsonEncode(deviceContacts);
+        var decodedContactsData = await jsonDecode(encodedContactsData);
+        if (kDebugMode) {
+          print('\n****** \n');
+          print('device RAW contacts: $deviceContacts');
+          print('\n****** \n');
+
+          print('\n****** \n');
+          print('device ENCODED contacts: $encodedContactsData');
+          print('\n****** \n');
+
+          print('\n****** \n');
+          print('device DECODED contacts: $decodedContactsData');
+          print('\n****** \n');
+        }
+
+        for (var deviceContact in deviceContacts) {
+          if (deviceContact.phones.isNotEmpty) {
+            var importedContact = CContactsModel(
+              userController.user.value.email,
+              0,
+              deviceContact.displayName!,
+              'KE',
+              '+254',
+              deviceContact.phones.first.number,
+              deviceContact.emails.first.address,
+              'Friend',
+              DateFormat(
+                'yyyy-MM-dd kk:mm',
+              ).format(clock.now()),
+              DateFormat(
+                'yyyy-MM-dd kk:mm',
+              ).format(clock.now()),
+              0,
+              'append',
+              0,
+              0,
+            );
+            await addContact(
+              importedContact,
+              0,
+            );
+          }
+        }
+      }
+      await fetchMyContacts();
+      isImportingContacts.value = false;
+    } catch (e) {
+      isImportingContacts.value = false;
+      if (kDebugMode) {
+        CPopupSnackBar.errorSnackBar(
+          message: 'unable to import device contacts: $e',
+          title: 'unable to import device contacts',
+        );
+      } else {
+        CPopupSnackBar.errorSnackBar(
+          message:
+              'an unknown error occurred while importing contacts from your device! please try again later...',
+          title: 'unable to import device contacts',
         );
       }
       rethrow;

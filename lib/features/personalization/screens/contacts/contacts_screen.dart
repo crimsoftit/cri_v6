@@ -44,7 +44,10 @@ class CContactsScreen extends StatelessWidget {
                     : Align(
                         alignment: Alignment.centerLeft,
                         child: Padding(
-                          padding: const EdgeInsets.only(top: 5.0, left: 10.0),
+                          padding: const EdgeInsets.only(
+                            top: 5.0,
+                            left: 10.0,
+                          ),
                           child: Icon(
                             Iconsax.menu,
                             size: CSizes.iconMd,
@@ -91,7 +94,10 @@ class CContactsScreen extends StatelessWidget {
 
                       expandedHeight: 50.0,
                       flexibleSpace: Padding(
-                        padding: const EdgeInsets.only(left: 10.0, right: 10.0),
+                        padding: const EdgeInsets.only(
+                          left: 10.0,
+                          right: 10.0,
+                        ),
                         child: Obx(() {
                           return ListView(
                             physics: const NeverScrollableScrollPhysics(),
@@ -122,26 +128,36 @@ class CContactsScreen extends StatelessWidget {
                                           fontWeightDelta: -7,
                                         ),
                                   ),
+
+                                  /// -- button to import contacts from device --
                                   Row(
                                     children: [
-                                      // IconButton(
-                                      //   onPressed: () async {
-                                      //     await contactsController
-                                      //         .addContactActionModal(
-                                      //           context,
-                                      //         );
-                                      //   },
-                                      //   icon: Icon(
-                                      //     Iconsax.add,
-                                      //     color:
-                                      //         CNetworkManager
-                                      //             .instance
-                                      //             .hasConnection
-                                      //             .value
-                                      //         ? CColors.rBrown
-                                      //         : CColors.darkGrey,
-                                      //   ),
-                                      // ),
+                                      contactsController
+                                              .isImportingContacts
+                                              .value
+                                          ? CShimmerEffect(
+                                              width: 40.0,
+                                              height: 40.0,
+                                              radius: 40.0,
+                                            )
+                                          : IconButton(
+                                              onPressed: () async {
+                                                await contactsController
+                                                    .importDeviceContacts();
+                                              },
+                                              icon: Icon(
+                                                Iconsax.import,
+                                                color:
+                                                    CNetworkManager
+                                                        .instance
+                                                        .hasConnection
+                                                        .value
+                                                    ? CColors.rBrown
+                                                    : CColors.darkGrey,
+                                              ),
+                                            ),
+
+                                      /// -- button to synchronize local contacts with cloud --
                                       contactsController
                                               .processingContactsSync
                                               .value
@@ -188,6 +204,7 @@ class CContactsScreen extends StatelessWidget {
                                               ),
                                             ),
 
+                                      /// -- button to take user to trashed contacts screen --
                                       IconButton(
                                         onPressed: () async {},
                                         icon: Icon(

@@ -1,4 +1,5 @@
 import 'package:cri_v6/common/widgets/anime/animated_digit_widget.dart';
+import 'package:cri_v6/common/widgets/appbar/tab_bar.dart';
 import 'package:cri_v6/features/personalization/controllers/contacts_controller.dart';
 import 'package:cri_v6/features/personalization/controllers/user_controller.dart';
 import 'package:cri_v6/features/store/screens/store_items_tings/widgets/txn_items.dart';
@@ -28,7 +29,7 @@ class CContactTxnsScreen extends StatelessWidget {
     );
     return DefaultTabController(
       animationDuration: Duration(milliseconds: 300),
-      length: 5,
+      length: 4,
       child: Scaffold(
         appBar: AppBar(
           automaticallyImplyLeading: true,
@@ -224,28 +225,28 @@ class CContactTxnsScreen extends StatelessWidget {
                     shadowColor: CColors.rBrown.withValues(
                       alpha: 0.1,
                     ),
-                    bottom: TabBar(
-                      isScrollable: true,
-                      indicatorColor: isDarkTheme
-                          ? CColors.white
-                          : CColors.rBrown,
-                      labelColor: isDarkTheme ? CColors.white : CColors.rBrown,
-                      unselectedLabelColor: isDarkTheme
-                          ? CColors.grey
-                          : CColors.rBrown.withValues(
-                              alpha: 0.5,
-                            ),
+
+                    /// -- tabs --
+                    bottom: CTabBar(
                       tabs: [
-                        Tab(
-                          text: 'Receipts',
-                        ),
                         Tab(
                           text:
                               'Credit - $userCurrency.${contactsController.contactInvoicedTxnsValue.value}',
                         ),
-                        Tab(text: 'Received'),
-                        Tab(text: 'Pending'),
-                        Tab(text: 'Failed'),
+
+                        Tab(
+                          text: 'Receipts',
+                        ),
+                        Tab(
+                          child: Text(
+                            'Refunds',
+                          ),
+                        ),
+                        Tab(
+                          child: Text(
+                            'Supplies',
+                          ),
+                        ),
                       ],
                     ),
                   ),
@@ -256,15 +257,18 @@ class CContactTxnsScreen extends StatelessWidget {
                   /// -- transactions list view --
                   CTxnItemsListView(
                     forContactScreen: true,
-                    space: 'contact receipts',
+                    space: 'contact invoices',
                   ),
                   CTxnItemsListView(
                     forContactScreen: true,
-                    space: 'contact invoices',
+                    space: 'contact receipts',
                   ),
-                  Center(child: Text('Received Transactions')),
-                  Center(child: Text('Pending Transactions')),
-                  Center(child: Text('Failed Transactions')),
+
+                  CTxnItemsListView(
+                    forContactScreen: true,
+                    space: 'contact refunds',
+                  ),
+                  Center(child: Text('Supplies')),
                 ],
               ),
             );

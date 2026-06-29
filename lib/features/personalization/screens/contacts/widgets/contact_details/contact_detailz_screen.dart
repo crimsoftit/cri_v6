@@ -396,73 +396,84 @@ class CContactDetailsScreen extends StatelessWidget {
                         ),
                     titleTopPadding: contactItem.contactEmail != '' ? 0 : 12.0,
 
-                    // trailing: IconButton(
-                    //   onPressed: () {
-                    //     Get.to(() => const CProfileScreen());
-                    //   },
-                    //   icon: const Icon(
-                    //     Iconsax.arrow_right,
-                    //   ),
-                    // ),
                     useCustomLeadingWiget: true,
                   ),
 
-                  const SizedBox(height: CSizes.spaceBtnItems / 3.0),
+                  const SizedBox(
+                    height: CSizes.spaceBtnItems / 3.0,
+                  ),
 
                   // -- txns display --
-                  CMenuTile(
-                    bgColor: CColors.rBrown.withValues(
-                      alpha: .2,
+                  Visibility(
+                    maintainState: false,
+                    visible: contactsController.contactHasPurchases(
+                      contactItem,
                     ),
-                    containerWidth: CHelperFunctions.screenWidth() * .855,
-                    displayTrailingWidget: true,
-                    icon: Iconsax.user_edit,
-                    leadingWidget: IconButton(
-                      icon: InkWell(
-                        onTap: () {},
-                        child: Icon(
+                    child: CMenuTile(
+                      bgColor: CColors.rBrown.withValues(
+                        alpha: .2,
+                      ),
+                      containerWidth: CHelperFunctions.screenWidth() * .855,
+                      displayTrailingWidget: true,
+                      icon: Iconsax.user_edit,
+                      leadingWidget: IconButton(
+                        icon: Icon(
                           Icons.monetization_on,
                           color: CColors.rBrown,
                           //size: CSizes.iconMd,
                         ),
+                        onPressed: () {
+                          Get.toNamed(
+                            '/my_contacts/contact_txns',
+                            arguments: contactItem.contactId,
+                          );
+                        },
                       ),
-                      onPressed: () {},
-                    ),
-                    onTap: () {
-                      Get.toNamed(
-                        '/my_contacts/contact_txns',
-                        arguments: contactItem.contactId,
-                      );
-                    },
-                    subTitleWidget: CRoundedContainer(
-                      bgColor: CColors.transparent,
-                      padding: const EdgeInsets.only(
-                        bottom: 10.0,
-                      ),
-                      child: Text(
-                        'credit: $userCurrency.${contactsController.contactInvoicedTxnsValue.value}',
-                        style: Theme.of(context).textTheme.labelMedium!.apply(
-                          color: isDarkTheme ? CColors.white : CColors.rBrown,
-                          fontSizeFactor: .9,
-                          fontStyle: FontStyle.italic,
+                      onTap: () {
+                        Get.toNamed(
+                          '/my_contacts/contact_txns',
+                          arguments: contactItem.contactId,
+                        );
+                      },
+                      subTitleWidget: CRoundedContainer(
+                        bgColor: CColors.transparent,
+                        padding: const EdgeInsets.only(
+                          top: 5.0,
+                          bottom: 10.0,
+                        ),
+                        child: Text(
+                          'credit: $userCurrency.${contactsController.contactInvoicedTxnsValue.value}',
+                          style: Theme.of(context).textTheme.labelMedium!.apply(
+                            color: isDarkTheme ? CColors.white : CColors.rBrown,
+                            fontSizeFactor: .9,
+                            fontStyle: FontStyle.italic,
+                          ),
                         ),
                       ),
-                    ),
-                    title:
-                        'Txns - $userCurrency${contactsController.contactTotalTxnsValue.value}',
-                    titleMaxLines: 1,
-                    titleStyle: Theme.of(context).textTheme.headlineMedium!
-                        .apply(color: CColors.rBrown, fontSizeFactor: .85),
-                    titleTopPadding: 12.0,
+                      title:
+                          'Txns - $userCurrency${contactsController.contactTotalTxnsValue.value}',
+                      titleMaxLines: 1,
+                      titleStyle: Theme.of(context).textTheme.headlineMedium!
+                          .apply(
+                            color: CColors.rBrown,
+                            fontSizeFactor: .85,
+                          ),
+                      titleTopPadding: 5.0,
 
-                    trailing: IconButton(
-                      onPressed: () {},
-                      icon: const Icon(
-                        Iconsax.arrow_right,
-                        color: CColors.rBrown,
+                      trailing: IconButton(
+                        onPressed: () {
+                          Get.toNamed(
+                            '/my_contacts/contact_txns',
+                            arguments: contactItem.contactId,
+                          );
+                        },
+                        icon: const Icon(
+                          Iconsax.arrow_right,
+                          color: CColors.rBrown,
+                        ),
                       ),
+                      useCustomLeadingWiget: true,
                     ),
-                    useCustomLeadingWiget: true,
                   ),
 
                   // const SizedBox(
@@ -580,29 +591,43 @@ class CContactDetailsScreen extends StatelessWidget {
 
                   Text(
                     'is synced: ${contactItem.isSynced}',
-                    style: Theme.of(
-                      context,
-                    ).textTheme.labelLarge!.apply(fontSizeFactor: 1.0),
+                    style:
+                        Theme.of(
+                          context,
+                        ).textTheme.labelLarge!.apply(
+                          fontSizeFactor: 1.0,
+                        ),
                   ),
                   Text(
                     'sync action: ${contactItem.syncAction}',
-                    style: Theme.of(
-                      context,
-                    ).textTheme.labelLarge!.apply(fontSizeFactor: 1.0),
+                    style:
+                        Theme.of(
+                          context,
+                        ).textTheme.labelLarge!.apply(
+                          fontSizeFactor: 1.0,
+                        ),
                   ),
 
-                  const SizedBox(height: CSizes.spaceBtnItems / 3.0),
+                  const SizedBox(
+                    height: CSizes.spaceBtnItems / 3.0,
+                  ),
                   SelectableText(
                     'product id: ${contactItem.productId}',
-                    style: Theme.of(
-                      context,
-                    ).textTheme.labelLarge!.apply(fontSizeFactor: 1.0),
+                    style:
+                        Theme.of(
+                          context,
+                        ).textTheme.labelLarge!.apply(
+                          fontSizeFactor: 1.0,
+                        ),
                   ),
                   Text(
                     'country code (eg. KE): ${contactItem.contactCountryCode}',
-                    style: Theme.of(
-                      context,
-                    ).textTheme.labelLarge!.apply(fontSizeFactor: 1.0),
+                    style:
+                        Theme.of(
+                          context,
+                        ).textTheme.labelLarge!.apply(
+                          fontSizeFactor: 1.0,
+                        ),
                   ),
                   Text(
                     'dial code (eg. +254): ${contactItem.contactDialCode}',

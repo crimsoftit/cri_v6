@@ -211,6 +211,24 @@ class CTxnItemsListView extends StatelessWidget {
             );
             break;
 
+          case 'contact refunds':
+            demItems.assignAll(
+              txnsController.refunds.where(
+                (contactRefund) {
+                  return contactRefund.customerName.toLowerCase().contains(
+                        contactItem.contactName.toLowerCase(),
+                      ) &&
+                      (contactRefund.customerContacts.toLowerCase().contains(
+                            contactItem.contactPhone.toLowerCase(),
+                          ) ||
+                          contactRefund.customerContacts.toLowerCase().contains(
+                            contactItem.contactEmail.toLowerCase(),
+                          ));
+                },
+              ),
+            );
+            break;
+
           default:
             demItems.clear();
             CPopupSnackBar.errorSnackBar(
@@ -226,17 +244,18 @@ class CTxnItemsListView extends StatelessWidget {
         }
 
         if (!searchController.showSearchField.value && demItems.isEmpty) {
-          return const Center(
+          return Center(
             child: NoDataScreen(
               lottieImage: CImages.noDataLottie,
-              txt: 'No data found!',
+              txt: '$space will be displayed here...',
             ),
           );
         }
 
-        /// TODO: tuone vle tunahandle hii loader
         if (syncController.processingSync.value) {
-          return const CVerticalProductShimmer(itemCount: 5);
+          return const CVerticalProductShimmer(
+            itemCount: 5,
+          );
         }
 
         return Padding(

@@ -1,6 +1,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
-
+    <!-- permissions for device contacts -->
+    <uses-permission android:name="android.permission.READ_CONTACTS" />
+    <uses-permission android:name="android.permission.WRITE_CONTACTS" />
 
     <!-- permissions for local & push notifications -->
     <uses-permission android:name="android.permission.ACCESS_NOTIFICATION_POLICY" />

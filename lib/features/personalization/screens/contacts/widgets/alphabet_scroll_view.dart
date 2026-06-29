@@ -18,7 +18,10 @@ import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
 
 class CContactItem extends StatelessWidget {
-  const CContactItem({super.key, required this.space});
+  const CContactItem({
+    super.key,
+    required this.space,
+  });
 
   final String space;
 
@@ -161,10 +164,18 @@ class CContactItem extends StatelessWidget {
           }
       }
 
-      if (demContacts.isNotEmpty &&
-          (contactsController.isLoading.value ||
-              contactsController.processingContactsSync.value)) {
-        return const CVerticalProductShimmer(itemCount: 6);
+      // if (contactsController.isImportingContacts.value ||
+      //     (demContacts.isNotEmpty &&
+      //         (contactsController.isLoading.value ||
+      //             contactsController.processingContactsSync.value))) {
+      //   return const CVerticalProductShimmer(itemCount: 6,);
+      // }
+      if (contactsController.isImportingContacts.value ||
+          contactsController.isLoading.value ||
+          contactsController.processingContactsSync.value) {
+        return const CVerticalProductShimmer(
+          itemCount: 6,
+        );
       }
 
       if (demContacts.isEmpty &&
