@@ -881,6 +881,7 @@ class AddUpdateInventoryForm extends StatelessWidget {
                             contactsController.addContact(
                               contactDetails,
                               inventoryItem.productId!,
+                              true,
                             );
                           }
 

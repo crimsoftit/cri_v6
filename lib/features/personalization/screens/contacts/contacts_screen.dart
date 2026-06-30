@@ -143,7 +143,13 @@ class CContactsScreen extends StatelessWidget {
                                           : IconButton(
                                               onPressed: () async {
                                                 await contactsController
-                                                    .importDeviceContacts();
+                                                    .importDeviceContacts()
+                                                    .then(
+                                                      (_) async {
+                                                        await contactsController
+                                                            .fetchMyContacts();
+                                                      },
+                                                    );
                                               },
                                               icon: Icon(
                                                 Iconsax.import,

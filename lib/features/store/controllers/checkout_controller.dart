@@ -867,9 +867,15 @@ class CCheckoutController extends GetxController {
             0,
           );
 
-          contactsController.addContact(customerDetails, 0).then((_) {
-            contactsController.fetchMyContacts();
-          });
+          contactsController
+              .addContact(
+                customerDetails,
+                0,
+                false,
+              )
+              .then((_) {
+                contactsController.fetchMyContacts();
+              });
         }
       }
     } catch (e) {

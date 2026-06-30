@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'dart:io';
 
 //import 'package:azlistview/azlistview.dart';
@@ -28,7 +27,9 @@ import 'package:cri_v6/utils/popups/snackbars.dart';
 import 'package:cri_v6/utils/validators/validation.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_contacts/flutter_contacts.dart' hide Email;
+import 'package:flutter_contacts/flutter_contacts.dart'
+    show FlutterContacts, Contact, ContactProperty;
+import 'package:flutter_contacts/models/permissions/permission_type.dart';
 import 'package:flutter_email_sender/flutter_email_sender.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
@@ -113,9 +114,8 @@ class CContactsController extends GetxController {
 
   /// -- initialize cloud sync --
   Future<void> initContactsSync() async {
-    if (localStorage.read('SyncContactsWithCloud') == true &&
-        myContacts.isEmpty) {
-      await importContacts();
+    if (localStorage.read('SyncContactsWithCloud') == true) {
+      //await importContacts();
       if (await importContacts()) {
         localStorage.write('SyncContactsWithCloud', false);
       } else {
@@ -136,17 +136,21 @@ class CContactsController extends GetxController {
       await fetchMyContacts().then((results) {
         switch (results.isNotEmpty) {
           case true:
-            contactMatches = myContacts
-                .where(
-                  (match) =>
-                      match.contactEmail.toLowerCase().contains(
-                        contactDetails.toLowerCase(),
-                      ) ||
-                      match.contactPhone.toLowerCase().contains(
-                        contactDetails.toLowerCase(),
-                      ),
-                )
-                .toList();
+
+            /// -- TODO: check if this match algorithm makes sense --
+            contactMatches = myContacts.where(
+              (match) {
+                return match.contactName.toLowerCase().contains(
+                      contactName.toLowerCase(),
+                    ) &&
+                    (match.contactEmail.toLowerCase().contains(
+                          contactDetails.toLowerCase(),
+                        ) ||
+                        match.contactPhone.toLowerCase().contains(
+                          contactDetails.toLowerCase(),
+                        ));
+              },
+            ).toList();
             if (contactMatches.isNotEmpty) {
               addContact = false;
             } else {
@@ -189,19 +193,29 @@ class CContactsController extends GetxController {
   }
 
   /// -- add a contact to the local database --
-  Future addContact(CContactsModel contact, int? productId) async {
+  Future addContact(
+    CContactsModel contact,
+    int? productId,
+    bool refreshContacts,
+  ) async {
     try {
-      await dbHelper.addContact(contact).then((_) {
-        fetchMyContacts();
-      });
-
-      if (kDebugMode) {
-        CPopupSnackBar.successSnackBar(
-          message: '${contact.contactName.toUpperCase()} added to contacts',
-          title: 'contact added',
+      if (refreshContacts) {
+        await dbHelper.addContact(contact).then(
+          (_) {
+            fetchMyContacts();
+          },
         );
+      } else {
+        await dbHelper.addContact(contact);
       }
-      fetchMyContacts();
+
+      // if (kDebugMode) {
+      //   CPopupSnackBar.successSnackBar(
+      //     message: '${contact.contactName.toUpperCase()} added to contacts',
+      //     title: 'contact added',
+      //   );
+      // }
+      //fetchMyContacts();
     } catch (e) {
       if (kDebugMode) {
         CPopupSnackBar.errorSnackBar(
@@ -1561,35 +1575,36 @@ class CContactsController extends GetxController {
       // -- start loader --
       processingContactsSync.value = true;
 
-      await fetchUserCloudContacts().then((result) async {
-        if (userCloudContacts.isNotEmpty &&
-            myContacts.isEmpty &&
-            await CNetworkManager.instance.isConnected() &&
-            CNetworkManager.instance.connectionIsStable.value) {
-          for (var contact in userCloudContacts) {
-            var forImportContacts = CContactsModel.withId(
-              contact.contactId,
-              contact.productId,
-              contact.addedBy,
-              contact.contactName,
-              contact.contactCountryCode,
-              contact.contactDialCode,
-              contact.contactPhone,
-              contact.contactEmail,
-              contact.contactCategory,
-              contact.lastModified,
-              contact.createdAt,
-              contact.isSynced,
-              contact.syncAction,
-              contact.isStarred,
-              contact.isTrashed,
-            );
+      await fetchUserCloudContacts().then(
+        (result) async {
+          if (userCloudContacts.isNotEmpty &&
+              await CNetworkManager.instance.isConnected() &&
+              CNetworkManager.instance.connectionIsStable.value) {
+            for (var contact in userCloudContacts) {
+              var forImportContacts = CContactsModel.withId(
+                contact.contactId,
+                contact.productId,
+                contact.addedBy,
+                contact.contactName,
+                contact.contactCountryCode,
+                contact.contactDialCode,
+                contact.contactPhone,
+                contact.contactEmail,
+                contact.contactCategory,
+                contact.lastModified,
+                contact.createdAt,
+                contact.isSynced,
+                contact.syncAction,
+                contact.isStarred,
+                contact.isTrashed,
+              );
 
-            // -- save imported data to local sqflite database --
-            dbHelper.addContact(forImportContacts);
+              // -- save imported data to local sqflite database --
+              dbHelper.addContact(forImportContacts);
+            }
           }
-        }
-      });
+        },
+      );
 
       // -- refresh myContacts list --
       await fetchMyContacts();
@@ -2036,55 +2051,135 @@ class CContactsController extends GetxController {
   Future<void> importDeviceContacts() async {
     try {
       isImportingContacts.value = true;
-      final contactsPermissionStatus = await Permission.contacts.request();
 
-      if (contactsPermissionStatus.isGranted) {
-        List<Contact> deviceContacts = await FlutterContacts.getAll();
-        var encodedContactsData = jsonEncode(deviceContacts);
-        var decodedContactsData = await jsonDecode(encodedContactsData);
-        if (kDebugMode) {
-          print('\n****** \n');
-          print('device RAW contacts: $deviceContacts');
-          print('\n****** \n');
+      // -- request permission to access device contacts --
+      final status = await Permission.contacts.status;
 
-          print('\n****** \n');
-          print('device ENCODED contacts: $encodedContactsData');
-          print('\n****** \n');
+      if (status.isGranted) {
+        List<Contact> deviceContacts = await FlutterContacts.getAll(
+          properties: {
+            ContactProperty.name,
+            ContactProperty.phone,
+            ContactProperty.email,
+            ContactProperty.address,
+          },
+        );
 
-          print('\n****** \n');
-          print('device DECODED contacts: $decodedContactsData');
-          print('\n****** \n');
-        }
+        // if (kDebugMode) {
+        //   print('\n ====================\n');
+        //   print('device contacts: $deviceContacts');
+        //   print('\n ====================\n');
 
-        for (var deviceContact in deviceContacts) {
-          if (deviceContact.phones.isNotEmpty) {
-            var importedContact = CContactsModel(
+        //   CPopupSnackBar.customToast(
+        //     forInternetConnectivityStatus: false,
+        //     message:
+        //         'Contacts permission is granted. Importing device contacts...',
+        //   );
+        // }
+
+        // -- process and save device contacts to local database --
+        for (var contact in deviceContacts) {
+          if (contact.displayName != null && contact.phones.isNotEmpty) {
+            var contactName = contact.displayName;
+            var contactPhone = contact.phones.isNotEmpty
+                ? contact.phones.first.number
+                : '';
+            var contactEmail = contact.emails.isNotEmpty
+                ? contact.emails.first.address
+                : '';
+
+            var forDeviceImportContact = CContactsModel(
               userController.user.value.email,
               0,
-              deviceContact.displayName!,
-              'KE',
-              '+254',
-              deviceContact.phones.first.number,
-              deviceContact.emails.first.address,
-              'Friend',
-              DateFormat(
-                'yyyy-MM-dd kk:mm',
-              ).format(clock.now()),
-              DateFormat(
-                'yyyy-MM-dd kk:mm',
-              ).format(clock.now()),
-              0,
-              'append',
-              0,
-              0,
+              contactName!,
+              contactCountryCode.value, // country code (to be set later)
+              contactDialCode.value, // dial code (to be set later)
+              contactPhone,
+              contactEmail,
+              selectedContactCategory.value,
+              DateFormat('yyyy-MM-dd kk:mm').format(clock.now()),
+              DateFormat('yyyy-MM-dd kk:mm').format(clock.now()),
+              0, // isSynced
+              'append', // syncAction
+              0, // isStarred
+              0, // isTrashed
             );
-            await addContact(
-              importedContact,
-              0,
-            );
+
+            // -- filter out already imported contacts --
+            if (await contactActionIsAdd(
+              forDeviceImportContact.contactName,
+              forDeviceImportContact.contactPhone,
+            )) {
+              await addContact(
+                forDeviceImportContact,
+                0,
+                false,
+              );
+            }
           }
         }
+      } else if (status.isDenied) {
+        // -- request permission to access device contacts --
+        final permissionStatus = await Permission.contacts.request();
+        if (permissionStatus.isGranted) {
+          CPopupSnackBar.customToast(
+            forInternetConnectivityStatus: false,
+            message:
+                'Permission granted after request. Importing device contacts...',
+          );
+        } else {
+          CPopupSnackBar.errorSnackBar(
+            message:
+                'permission to access device contacts was denied! please grant permission and try again later...',
+            title: 'permission denied after request to access device contacts',
+          );
+        }
+      } else if (status.isPermanentlyDenied) {
+        // User denied permission and selected "Never Ask Again"
+        // Direct user to app settings
+        openAppSettings();
+        CPopupSnackBar.errorSnackBar(
+          message:
+              'permission to access device contacts was permanently denied. Please enable in settings...',
+          title: 'permission permanently denied',
+        );
       }
+      // if (permissionStatus == PermissionStatus.granted) {
+      //   List<Contact> deviceContacts = await FlutterContacts.getAll(properties: true);
+      //   if (kDebugMode) {
+      //     print('\n ====================\n');
+      //     print('device contacts: $deviceContacts');
+      //     print('\n ====================\n');
+      //   }
+      //   for (var contact in deviceContacts) {
+      //     var contactName = contact.displayName;
+      //     var contactPhone = contact.phones.isNotEmpty
+      //         ? contact.phones.first.number
+      //         : '';
+      //     var contactEmail = contact.emails.isNotEmpty
+      //         ? contact.emails.first.address
+      //         : '';
+      //     // -- create a new CContactsModel instance for each device contact --
+      //     var newContact = CContactsModel(
+      //       userController.user.value.email,
+      //       0,
+      //       contactName!,
+      //       contactCountryCode.value, // country code (to be set later)
+      //       contactDialCode.value, // dial code (to be set later)
+      //       contactPhone,
+      //       contactEmail,
+      //       selectedContactCategory.value,
+      //       DateFormat('yyyy-MM-dd kk:mm').format(clock.now()),
+      //       DateFormat('yyyy-MM-dd kk:mm').format(clock.now()),
+      //       0, // isSynced
+      //       'append', // syncAction
+      //       0, // isStarred
+      //       0, // isTrashed
+      //     );
+      //     // -- add the new contact to the local database --
+      //     await dbHelper.addContact(newContact);
+      //   }
+      // }
       await fetchMyContacts();
       isImportingContacts.value = false;
     } catch (e) {

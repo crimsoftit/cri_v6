@@ -228,11 +228,17 @@ class CAddUpdateContactForm extends StatelessWidget {
                             );
 
                             contactsController
-                                .addContact(contactDetails, 0)
-                                .then((_) {
-                                  contactsController.resetFields();
-                                  Navigator.of(Get.overlayContext!).pop(true);
-                                });
+                                .addContact(
+                                  contactDetails,
+                                  0,
+                                  true,
+                                )
+                                .then(
+                                  (_) {
+                                    contactsController.resetFields();
+                                    Navigator.of(Get.overlayContext!).pop(true);
+                                  },
+                                );
                           },
                         ),
                       ),
