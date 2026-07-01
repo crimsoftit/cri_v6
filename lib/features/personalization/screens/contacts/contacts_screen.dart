@@ -4,6 +4,7 @@ import 'package:cri_v6/common/widgets/shimmers/shimmer_effects.dart';
 import 'package:cri_v6/features/personalization/controllers/contacts_controller.dart';
 import 'package:cri_v6/features/personalization/screens/contacts/widgets/alphabet_scroll_view.dart';
 import 'package:cri_v6/features/personalization/screens/contacts/widgets/animed_searchfield.dart';
+import 'package:cri_v6/features/personalization/screens/contacts/widgets/contacts_listview.dart';
 import 'package:cri_v6/utils/constants/colors.dart';
 import 'package:cri_v6/utils/constants/sizes.dart';
 import 'package:cri_v6/utils/helpers/helper_functions.dart';
@@ -252,7 +253,9 @@ class CContactsScreen extends StatelessWidget {
                 body: const TabBarView(
                   physics: BouncingScrollPhysics(),
                   children: [
-                    CContactItem(space: 'all'),
+                    CContactsListview(
+                      space: 'all',
+                    ),
 
                     CContactItem(space: 'suppliers'),
                     CContactItem(space: 'customers'),

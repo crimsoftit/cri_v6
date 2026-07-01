@@ -12,7 +12,7 @@ import 'package:cri_v6/common/widgets/txt_fields/custom_type_ahead_field.dart';
 import 'package:cri_v6/features/personalization/controllers/user_controller.dart';
 import 'package:cri_v6/features/personalization/models/contacts_del_model.dart';
 import 'package:cri_v6/features/personalization/models/contacts_model.dart';
-import 'package:cri_v6/features/personalization/screens/contacts/widgets/contact_details/widgets/add_update_contact_form.dart';
+import 'package:cri_v6/features/personalization/screens/contacts/contact_details/widgets/add_update_contact_form.dart';
 import 'package:cri_v6/features/store/controllers/inv_controller.dart';
 import 'package:cri_v6/features/store/controllers/nav_menu_controller.dart';
 import 'package:cri_v6/features/store/controllers/txns_controller.dart';
@@ -29,7 +29,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_contacts/flutter_contacts.dart'
     show FlutterContacts, Contact, ContactProperty;
-import 'package:flutter_contacts/models/permissions/permission_type.dart';
 import 'package:flutter_email_sender/flutter_email_sender.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
@@ -2088,15 +2087,25 @@ class CContactsController extends GetxController {
                 ? contact.emails.first.address
                 : '';
 
+            // -- extract dial code from phone number --
+            final (
+              dialCode,
+              mobileNumber,
+            ) = CFormatter.seperatePhoneAndDialCode(
+              contactPhone,
+            );
+
             var forDeviceImportContact = CContactsModel(
               userController.user.value.email,
               0,
               contactName!,
-              contactCountryCode.value, // country code (to be set later)
-              contactDialCode.value, // dial code (to be set later)
-              contactPhone,
+              CFormatter.getCountryCodeFromDialCode(
+                dialCode,
+              ), // country code (to be set later)
+              dialCode, // dial code (to be set later)
+              mobileNumber,
               contactEmail,
-              selectedContactCategory.value,
+              'Device',
               DateFormat('yyyy-MM-dd kk:mm').format(clock.now()),
               DateFormat('yyyy-MM-dd kk:mm').format(clock.now()),
               0, // isSynced

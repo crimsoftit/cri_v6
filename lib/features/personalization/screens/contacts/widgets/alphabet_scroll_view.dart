@@ -239,8 +239,13 @@ class CContactItem extends StatelessWidget {
         physics: AlwaysScrollableScrollPhysics(),
         itemBuilder: (context, index) {
           return SingleChildScrollView(
+            physics: NeverScrollableScrollPhysics(),
             child: Padding(
-              padding: const EdgeInsets.only(left: 2.0, right: 2.0, top: 10.0),
+              padding: const EdgeInsets.only(
+                left: 2.0,
+                right: 2.0,
+                top: 10.0,
+              ),
               child: Column(
                 children: [
                   Card(

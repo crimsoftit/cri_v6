@@ -6,7 +6,7 @@ import 'package:cri_v6/common/widgets/shimmers/vert_items_shimmer.dart';
 import 'package:cri_v6/common/widgets/txt_widgets/c_section_headings.dart';
 import 'package:cri_v6/features/personalization/controllers/contacts_controller.dart';
 import 'package:cri_v6/features/personalization/controllers/user_controller.dart';
-import 'package:cri_v6/features/personalization/screens/contacts/widgets/contact_details/widgets/contact_settings_display.dart';
+import 'package:cri_v6/features/personalization/screens/contacts/contact_details/widgets/contact_settings_display.dart';
 import 'package:cri_v6/utils/constants/colors.dart';
 import 'package:cri_v6/utils/constants/sizes.dart';
 import 'package:cri_v6/utils/helpers/helper_functions.dart';

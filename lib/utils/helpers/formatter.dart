@@ -296,10 +296,10 @@ class CFormatter {
     final contactCountry = countries.firstWhere(
       (country) => country["dial_code"] == dialCode,
       orElse: () {
-        CPopupSnackBar.customToast(
-          forInternetConnectivityStatus: false,
-          message: 'dial code not found',
-        );
+        // CPopupSnackBar.customToast(
+        //   forInternetConnectivityStatus: false,
+        //   message: 'dial code not found',
+        // );
         return {};
       }, // Handle case where no item is found
     );
