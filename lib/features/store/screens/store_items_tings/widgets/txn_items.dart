@@ -1,0 +1,238 @@
+import 'package:cri_v6/common/widgets/shimmers/vert_items_shimmer.dart';
+import 'package:cri_v6/features/personalization/controllers/contacts_controller.dart';
+import 'package:cri_v6/features/personalization/controllers/user_controller.dart';
+import 'package:cri_v6/features/personalization/models/contacts_model.dart';
+import 'package:cri_v6/features/personalization/screens/no_data/no_data_screen.dart';
+import 'package:cri_v6/features/store/controllers/search_bar_controller.dart';
+import 'package:cri_v6/features/store/controllers/sync_controller.dart';
+import 'package:cri_v6/features/store/controllers/txns_controller.dart';
+import 'package:cri_v6/features/store/screens/search/widgets/no_results_screen.dart';
+import 'package:cri_v6/features/store/screens/store_items_tings/widgets/individual_txn_item.dart';
+import 'package:cri_v6/utils/constants/colors.dart';
+import 'package:cri_v6/utils/constants/img_strings.dart';
+import 'package:cri_v6/utils/helpers/helper_functions.dart';
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+
+class CTxnItemsListView extends StatefulWidget {
+  const CTxnItemsListView({
+    super.key,
+    this.contactId,
+    required this.forContactScreen,
+    required this.space,
+  });
+
+  final int? contactId;
+  final bool forContactScreen;
+  final String space;
+
+  @override
+  State<CTxnItemsListView> createState() => _CTxnItemsListViewState();
+}
+
+class _CTxnItemsListViewState extends State<CTxnItemsListView> {
+  int? _expandedIndex; // Stores the index of the currently expanded item
+
+  @override
+  Widget build(BuildContext context) {
+    /// -- variables --
+    final contactsController = Get.put(CContactsController());
+    final isDarkTheme = CHelperFunctions.isDarkMode(context);
+    final searchController = Get.put(CSearchBarController());
+    final syncController = Get.put(CSyncController());
+    final txnsController = Get.put(CTxnsController());
+    final userController = Get.put(CUserController());
+    final userCurrency = CHelperFunctions.formatCurrency(
+      userController.user.value.currencyCode,
+    );
+
+    return Obx(
+      () {
+        var demItems = [];
+
+        CContactsModel contactItem = CContactsModel.empty();
+
+        if (widget.forContactScreen) {
+          contactItem = contactsController.myContacts.firstWhere(
+            (element) => element.contactId == Get.arguments,
+          );
+        }
+
+        switch (widget.space) {
+          case 'invoices':
+            demItems.assignAll(
+              searchController.showSearchField.value &&
+                      searchController.txtSearchField.text != '' &&
+                      !txnsController.isLoading.value
+                  ? txnsController.foundInvoices
+                  : txnsController.invoices,
+            );
+            break;
+          case 'contact invoices':
+            demItems.assignAll(
+              txnsController.invoices.where(
+                (contactInvoice) {
+                  return contactInvoice.customerName.toLowerCase().contains(
+                        contactItem.contactName.toLowerCase(),
+                      ) &&
+                      (contactInvoice.customerContacts.toLowerCase().contains(
+                            contactItem.contactPhone.toLowerCase(),
+                          ) ||
+                          contactInvoice.customerContacts
+                              .toLowerCase()
+                              .contains(
+                                contactItem.contactEmail.toLowerCase(),
+                              ));
+                },
+              ),
+            );
+            break;
+          case 'receipts':
+            demItems.assignAll(
+              searchController.showSearchField.value &&
+                      searchController.txtSearchField.text != '' &&
+                      !txnsController.isLoading.value
+                  ? txnsController.foundReceipts
+                  : txnsController.receipts,
+            );
+            break;
+          case 'contact receipts':
+            demItems.assignAll(
+              txnsController.receipts.where(
+                (contactReceipt) {
+                  return contactReceipt.customerName.toLowerCase().contains(
+                        contactItem.contactName.toLowerCase(),
+                      ) &&
+                      (contactReceipt.customerContacts.toLowerCase().contains(
+                            contactItem.contactPhone.toLowerCase(),
+                          ) ||
+                          contactReceipt.customerContacts
+                              .toLowerCase()
+                              .contains(
+                                contactItem.contactEmail.toLowerCase(),
+                              ));
+                },
+              ),
+            );
+            break;
+          case 'sales':
+            demItems.assignAll(
+              searchController.showSearchField.value &&
+                      searchController.txtSearchField.text != '' &&
+                      !txnsController.isLoading.value
+                  ? txnsController.foundSales
+                  : txnsController.sales,
+            );
+            break;
+
+          case 'refunds':
+            demItems.assignAll(
+              searchController.showSearchField.value &&
+                      searchController.txtSearchField.text != '' &&
+                      !txnsController.isLoading.value
+                  ? txnsController.foundRefunds
+                  : txnsController.refunds,
+            );
+            break;
+
+          case 'contact refunds':
+            demItems.assignAll(
+              txnsController.refunds.where(
+                (contactRefund) {
+                  return contactRefund.customerName.toLowerCase().contains(
+                        contactItem.contactName.toLowerCase(),
+                      ) &&
+                      (contactRefund.customerContacts.toLowerCase().contains(
+                            contactItem.contactPhone.toLowerCase(),
+                          ) ||
+                          contactRefund.customerContacts.toLowerCase().contains(
+                            contactItem.contactEmail.toLowerCase(),
+                          ));
+                },
+              ),
+            );
+            break;
+          default:
+            demItems.clear();
+
+            break;
+        }
+
+        if (searchController.showSearchField.value &&
+            !txnsController.isLoading.value &&
+            demItems.isEmpty) {
+          return const NoSearchResultsScreen();
+        }
+
+        if (!searchController.showSearchField.value && demItems.isEmpty) {
+          return Center(
+            child: NoDataScreen(
+              lottieImage: CImages.noDataLottie,
+              txt: '${widget.space} will be displayed here...',
+            ),
+          );
+        }
+
+        if (syncController.processingSync.value) {
+          return const CVerticalProductShimmer(
+            itemCount: 5,
+          );
+        }
+
+        return ListView.separated(
+          itemBuilder: (context, index) {
+            final bool isExpanded = _expandedIndex == index;
+
+            return GestureDetector(
+              onTap: () {
+                setState(
+                  () {
+                    // -- if tapping the already expanded index, collapse it; otherwise expand this one and collapse all the others --
+                    _expandedIndex = isExpanded ? null : index;
+                    if (!isExpanded) {
+                      txnsController.transactionItems.clear();
+                    } else {}
+                  },
+                );
+              },
+              child: CIndividualTxnItem(
+                boxColor: isDarkTheme
+                    ? CColors.rBrown.withValues(
+                        alpha: .4,
+                      )
+                    : CColors.lightGrey,
+                boxHeight: isExpanded
+                    ? (txnsController.transactionItems.length * 40) + 80
+                    : 100.0,
+                isExpanded: isExpanded,
+                subtitle: 'Details for item ${index + 1}',
+                titleWidget: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      '#${demItems[index].txnId}',
+                      style: Theme.of(context).textTheme.labelLarge!.apply(),
+                    ),
+                    Text(
+                      'txn Amt: $userCurrency.${demItems[index].totalAmount}',
+                      style: Theme.of(context).textTheme.labelMedium!.apply(),
+                    ),
+                  ],
+                ),
+                //title: '${demItems[index].txnId}',
+                txnId: demItems[index].txnId,
+              ),
+            );
+          },
+          itemCount: demItems.length,
+          separatorBuilder: (context, index) {
+            return const SizedBox(
+              height: 3.0,
+            );
+          },
+          shrinkWrap: true,
+        );
+      },
+    );
+  }
+}
