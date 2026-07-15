@@ -11,7 +11,6 @@ import 'package:cri_v6/features/store/screens/search/widgets/no_results_screen.d
 import 'package:cri_v6/features/store/screens/store_items_tings/widgets/individual_txn_item.dart';
 import 'package:cri_v6/utils/constants/colors.dart';
 import 'package:cri_v6/utils/constants/img_strings.dart';
-import 'package:cri_v6/utils/constants/sizes.dart';
 import 'package:cri_v6/utils/helpers/helper_functions.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -214,20 +213,21 @@ class _CTxnItemsListViewState extends State<CTxnItemsListView> {
                 boxHeight:
                     isExpanded &&
                         txnsController.transactionItems.isNotEmpty &&
-                        txnsController.transactionItems.length <= 2
-                    ? 200
+                        txnsController.transactionItems.length <= 3
+                    ? 210.0
                     : isExpanded &&
                           txnsController.transactionItems.isNotEmpty &&
-                          txnsController.transactionItems.length > 2
-                    ? (txnsController.transactionItems.length * 43) + 60
+                          txnsController.transactionItems.length > 3
+                    ? (txnsController.transactionItems.length * 43) + 43
                     : 120.0,
                 isExpanded: isExpanded,
                 subTitleWidget: Flex(
                   direction: Axis.vertical,
                   mainAxisSize: MainAxisSize.min,
+                  spacing: 5.0,
                   children: [
                     Flexible(
-                      flex: 1,
+                      flex: isExpanded ? 2 : 1,
                       child: CRoundedContainer(
                         bgColor: CColors.transparent,
                         //height: CHelperFunctions.screenHeight() * .25,
@@ -254,11 +254,11 @@ class _CTxnItemsListViewState extends State<CTxnItemsListView> {
                             Wrap(
                               alignment: WrapAlignment.end,
                               direction: Axis.vertical,
-                              //spacing: 10.0,
+                              spacing: 5.0,
                               children: [
                                 Text(
                                   demItems[index].customerName == ''
-                                      ? 'name: N/A'
+                                      ? 'name: N/A '
                                       : 'name: ${demItems[index].customerName}; ',
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
@@ -293,7 +293,7 @@ class _CTxnItemsListViewState extends State<CTxnItemsListView> {
                       ),
                     ),
                     Flexible(
-                      flex: 1,
+                      flex: isExpanded ? 2 : 1,
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
@@ -324,10 +324,10 @@ class _CTxnItemsListViewState extends State<CTxnItemsListView> {
                       ).textTheme.labelLarge!.apply(),
                     ),
                     Text(
-                      'txn Amt: $userCurrency.${demItems[index].totalAmount}',
+                      'Amt: $userCurrency.${demItems[index].totalAmount}',
                       style: Theme.of(
                         context,
-                      ).textTheme.labelMedium!.apply(),
+                      ).textTheme.labelLarge!.apply(),
                     ),
                   ],
                 ),

@@ -11,7 +11,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class CIndividualTxnItem extends StatelessWidget {
-  const CIndividualTxnItem({
+  CIndividualTxnItem({
     this.subtitle,
     this.title,
     required this.txnId,
@@ -33,6 +33,9 @@ class CIndividualTxnItem extends StatelessWidget {
   final int txnId;
   final String? subtitle, title;
   final Widget? leadingWidget, subTitleWidget, titleWidget;
+
+  // 1. Create a single ScrollController
+  final _scrollController = ScrollController();
 
   @override
   Widget build(BuildContext context) {
@@ -111,66 +114,93 @@ class CIndividualTxnItem extends StatelessWidget {
               if (isExpanded && txnsController.transactionItems.isNotEmpty)
                 Flexible(
                   flex: 1,
-                  child: CFormDivider(
-                    dividerText: 'txn items',
-                    dividerTxtFontSizeFactor: 1.1,
+                  child: Padding(
+                    padding: EdgeInsets.only(
+                      bottom: 5.0,
+                      top: txnsController.transactionItems.length < 3
+                          ? 20.0
+                          : 10.0,
+                    ),
+                    child: CFormDivider(
+                      dividerText: 'txn items',
+                      dividerTxtFontSizeFactor: 1.1,
+                    ),
                   ),
                 ),
 
               if (isExpanded && txnsController.transactionItems.isNotEmpty)
                 Flexible(
                   flex: 1,
-                  child: ListView.builder(
-                    itemBuilder: (context, index) {
-                      return Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          CRoundedContainer(
-                            bgColor: CColors.transparent,
-                            width: CHelperFunctions.screenWidth() * .45,
-                            child: Text(
-                              txnsController.transactionItems[index].productName
-                                  .toUpperCase(),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: Theme.of(
-                                context,
-                              ).textTheme.labelMedium!.apply(),
-                            ),
-                          ),
-                          CRoundedContainer(
-                            bgColor: CColors.transparent,
-                            width: CHelperFunctions.screenWidth() * .35,
-                            child: Text(
-                              '${CFormatter.formatItemQtyDisplays(txnsController.transactionItems[index].quantity, txnsController.transactionItems[index].itemMetrics)} ${CFormatter.formatItemMetrics(txnsController.transactionItems[index].itemMetrics, txnsController.transactionItems[index].quantity)} @ $userCurrency.${txnsController.transactionItems[index].unitSellingPrice}',
-                            ),
-                          ),
-
-                          GestureDetector(
-                            onTap: () {
-                              CPopupSnackBar.customToast(
-                                forInternetConnectivityStatus: false,
-                                message: 'rada clean',
-                              );
-                            },
-                            child: Icon(
-                              Icons.arrow_forward_ios,
-                              size: CSizes.iconXs,
-                            ),
-                          ),
-                        ],
-                      );
-                    },
-                    itemCount: txnsController.transactionItems.length,
+                  child: Padding(
                     padding: const EdgeInsets.only(
-                      bottom: 5.0,
-                      left: 10.0,
                       right: 10.0,
-                      top: 5.0,
                     ),
-                    //physics: NeverScrollableScrollPhysics(),
-                    shrinkWrap: true,
+                    child: Scrollbar(
+                      // 2. Attach the controller to Scrollbar
+                      controller: _scrollController,
+                      radius: Radius.elliptical(
+                        50,
+                        50,
+                      ),
+                      thickness: 5.0,
+                      thumbVisibility: true,
+                      child: ListView.builder(
+                        // 4. Attach the SAME controller to ListView
+                        controller: _scrollController,
+                        itemBuilder: (context, index) {
+                          return Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            //mainAxisSize: MainAxisSize.min,
+                            children: [
+                              CRoundedContainer(
+                                bgColor: CColors.transparent,
+                                width: CHelperFunctions.screenWidth() * .45,
+                                child: Text(
+                                  txnsController
+                                      .transactionItems[index]
+                                      .productName
+                                      .toUpperCase(),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: Theme.of(
+                                    context,
+                                  ).textTheme.labelMedium!.apply(),
+                                ),
+                              ),
+                              CRoundedContainer(
+                                bgColor: CColors.transparent,
+                                width: CHelperFunctions.screenWidth() * .35,
+                                child: Text(
+                                  '${CFormatter.formatItemQtyDisplays(txnsController.transactionItems[index].quantity, txnsController.transactionItems[index].itemMetrics)} ${CFormatter.formatItemMetrics(txnsController.transactionItems[index].itemMetrics, txnsController.transactionItems[index].quantity)} @ $userCurrency.${txnsController.transactionItems[index].unitSellingPrice}',
+                                ),
+                              ),
+
+                              GestureDetector(
+                                onTap: () {
+                                  CPopupSnackBar.customToast(
+                                    forInternetConnectivityStatus: false,
+                                    message: 'rada clean',
+                                  );
+                                },
+                                child: Icon(
+                                  Icons.arrow_forward_ios,
+                                  size: CSizes.iconXs,
+                                ),
+                              ),
+                            ],
+                          );
+                        },
+                        itemCount: txnsController.transactionItems.length,
+                        padding: const EdgeInsets.only(
+                          bottom: 5.0,
+                          left: 10.0,
+                          right: 10.0,
+                          top: 5.0,
+                        ),
+                        //physics: AlwaysScrollableScrollPhysics(),
+                        shrinkWrap: true,
+                      ),
+                    ),
                   ),
                 ),
             ],
