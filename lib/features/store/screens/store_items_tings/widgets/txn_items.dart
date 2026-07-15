@@ -1,3 +1,4 @@
+import 'package:cri_v6/common/widgets/custom_shapes/containers/rounded_container.dart';
 import 'package:cri_v6/common/widgets/shimmers/vert_items_shimmer.dart';
 import 'package:cri_v6/features/personalization/controllers/contacts_controller.dart';
 import 'package:cri_v6/features/personalization/controllers/user_controller.dart';
@@ -10,6 +11,7 @@ import 'package:cri_v6/features/store/screens/search/widgets/no_results_screen.d
 import 'package:cri_v6/features/store/screens/store_items_tings/widgets/individual_txn_item.dart';
 import 'package:cri_v6/utils/constants/colors.dart';
 import 'package:cri_v6/utils/constants/img_strings.dart';
+import 'package:cri_v6/utils/constants/sizes.dart';
 import 'package:cri_v6/utils/helpers/helper_functions.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -191,31 +193,141 @@ class _CTxnItemsListViewState extends State<CTxnItemsListView> {
                     _expandedIndex = isExpanded ? null : index;
                     if (!isExpanded) {
                       txnsController.transactionItems.clear();
-                    } else {}
+                    }
                   },
                 );
               },
               child: CIndividualTxnItem(
-                boxColor: isDarkTheme
+                boxColor: isDarkTheme && isExpanded
                     ? CColors.rBrown.withValues(
+                        alpha: .2,
+                      )
+                    : isDarkTheme && !isExpanded
+                    ? CColors.rBrown.withValues(
+                        alpha: .3,
+                      )
+                    : isExpanded
+                    ? CColors.lightGrey.withValues(
                         alpha: .4,
                       )
                     : CColors.lightGrey,
-                boxHeight: isExpanded
-                    ? (txnsController.transactionItems.length * 40) + 80
-                    : 100.0,
+                boxHeight:
+                    isExpanded &&
+                        txnsController.transactionItems.isNotEmpty &&
+                        txnsController.transactionItems.length <= 2
+                    ? 200
+                    : isExpanded &&
+                          txnsController.transactionItems.isNotEmpty &&
+                          txnsController.transactionItems.length > 2
+                    ? (txnsController.transactionItems.length * 43) + 60
+                    : 120.0,
                 isExpanded: isExpanded,
-                subtitle: 'Details for item ${index + 1}',
+                subTitleWidget: Flex(
+                  direction: Axis.vertical,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Flexible(
+                      flex: 1,
+                      child: CRoundedContainer(
+                        bgColor: CColors.transparent,
+                        //height: CHelperFunctions.screenHeight() * .25,
+                        padding: const EdgeInsets.only(
+                          top: 5.0,
+                          bottom: 3.0,
+                        ),
+                        width: CHelperFunctions.screenWidth() * .95,
+                        //showBorder: true,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          //mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              'sold to:',
+                              style:
+                                  Theme.of(
+                                    context,
+                                  ).textTheme.labelMedium!.apply(
+                                    color: CColors.darkGrey,
+                                    fontStyle: FontStyle.italic,
+                                  ),
+                            ),
+                            Wrap(
+                              alignment: WrapAlignment.end,
+                              direction: Axis.vertical,
+                              //spacing: 10.0,
+                              children: [
+                                Text(
+                                  demItems[index].customerName == ''
+                                      ? 'name: N/A'
+                                      : 'name: ${demItems[index].customerName}; ',
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style:
+                                      Theme.of(
+                                        context,
+                                      ).textTheme.labelMedium!.apply(
+                                        color: CColors.darkGrey,
+                                        fontStyle: FontStyle.italic,
+                                      ),
+                                  textAlign: TextAlign.right,
+                                ),
+                                Text(
+                                  demItems[index].customerContacts == ''
+                                      ? 'contacts: N/A'
+                                      : 'contacts: ${demItems[index].customerContacts}',
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style:
+                                      Theme.of(
+                                        context,
+                                      ).textTheme.labelMedium!.apply(
+                                        color: CColors.darkGrey,
+                                        fontStyle: FontStyle.italic,
+                                      ),
+                                  textAlign: TextAlign.right,
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    Flexible(
+                      flex: 1,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'discount:',
+                            style: Theme.of(
+                              context,
+                            ).textTheme.labelMedium!.apply(),
+                          ),
+                          Text(
+                            '$userCurrency.${demItems[index].discount}',
+                            style: Theme.of(
+                              context,
+                            ).textTheme.labelMedium!.apply(),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
                 titleWidget: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
                       '#${demItems[index].txnId}',
-                      style: Theme.of(context).textTheme.labelLarge!.apply(),
+                      style: Theme.of(
+                        context,
+                      ).textTheme.labelLarge!.apply(),
                     ),
                     Text(
                       'txn Amt: $userCurrency.${demItems[index].totalAmount}',
-                      style: Theme.of(context).textTheme.labelMedium!.apply(),
+                      style: Theme.of(
+                        context,
+                      ).textTheme.labelMedium!.apply(),
                     ),
                   ],
                 ),
@@ -225,6 +337,11 @@ class _CTxnItemsListViewState extends State<CTxnItemsListView> {
             );
           },
           itemCount: demItems.length,
+          padding: const EdgeInsets.only(
+            left: 10.0,
+            right: 10.0,
+            top: 5.0,
+          ),
           separatorBuilder: (context, index) {
             return const SizedBox(
               height: 3.0,

@@ -21,22 +21,40 @@ class CCarouselSlider extends StatelessWidget {
             CRoundedContainer(
               borderRadius: CSizes.md,
               child: ClipRRect(
-                borderRadius: BorderRadius.circular(CSizes.md),
-                child: Image(image: AssetImage(CImages.sliderImg1)),
+                borderRadius: BorderRadius.circular(
+                  CSizes.md,
+                ),
+                child: Image(
+                  image: AssetImage(
+                    CImages.sliderImg1,
+                  ),
+                ),
               ),
             ),
             CRoundedContainer(
               borderRadius: CSizes.md,
               child: ClipRRect(
-                borderRadius: BorderRadius.circular(CSizes.md),
-                child: Image(image: AssetImage(CImages.sliderImg2)),
+                borderRadius: BorderRadius.circular(
+                  CSizes.md,
+                ),
+                child: Image(
+                  image: AssetImage(
+                    CImages.sliderImg2,
+                  ),
+                ),
               ),
             ),
             CRoundedContainer(
               borderRadius: CSizes.md,
               child: ClipRRect(
-                borderRadius: BorderRadius.circular(CSizes.md),
-                child: Image(image: AssetImage(CImages.sliderImg3)),
+                borderRadius: BorderRadius.circular(
+                  CSizes.md,
+                ),
+                child: Image(
+                  image: AssetImage(
+                    CImages.sliderImg3,
+                  ),
+                ),
               ),
             ),
           ],

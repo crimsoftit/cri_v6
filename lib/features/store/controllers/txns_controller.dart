@@ -391,28 +391,30 @@ class CTxnsController extends GetxController {
       txnItemsLoading.value = true;
       isLoading.value = true;
 
-      await fetchTxns().then((_) {
-        if (txns.isNotEmpty && soldItemsFetched.value && txnsFetched.value) {
-          var listToSearchFrom = foundSales.isNotEmpty ? foundSales : sales;
-          var txnItems = listToSearchFrom
-              .where(
-                (soldItem) =>
-                    soldItem.txnId.toString().contains(txnId.toString()),
-              )
-              .toList();
+      await fetchTxns().then(
+        (_) {
+          if (txns.isNotEmpty && soldItemsFetched.value && txnsFetched.value) {
+            var listToSearchFrom = foundSales.isNotEmpty ? foundSales : sales;
+            var txnItems = listToSearchFrom
+                .where(
+                  (soldItem) =>
+                      soldItem.txnId.toString().contains(txnId.toString()),
+                )
+                .toList();
 
-          transactionItems.assignAll(txnItems);
-        } else {
-          // stop loader
-          txnItemsLoading.value = false;
-          isLoading.value = false;
-          transactionItems.clear();
-          return CPopupSnackBar.warningSnackBar(
-            title: 'items not found',
-            message: 'items NOT found for this txn',
-          );
-        }
-      });
+            transactionItems.assignAll(txnItems);
+          } else {
+            // stop loader
+            txnItemsLoading.value = false;
+            isLoading.value = false;
+            transactionItems.clear();
+            return CPopupSnackBar.warningSnackBar(
+              title: 'items not found',
+              message: 'items NOT found for this txn',
+            );
+          }
+        },
+      );
 
       txnItemsLoading.value = false;
       isLoading.value = false;
