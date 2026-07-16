@@ -23,7 +23,9 @@ class CustomerDetailsScreen extends StatelessWidget {
           bgColor: CColors.transparent,
           width: CHelperFunctions.screenWidth() * .69,
           child: CCustomTypeaheadField(
-            contentPadding: const EdgeInsets.all(5.0),
+            contentPadding: const EdgeInsets.all(
+              5.0,
+            ),
             fieldHeight:
                 checkoutController.customerContactsFieldController.text == ''
                 ? 55.0
@@ -70,7 +72,9 @@ class CustomerDetailsScreen extends StatelessWidget {
         //   // : 'customer name(optional)',
         //   txtFieldController: checkoutController.customerNameFieldController,
         // ),
-        const SizedBox(height: 2.6),
+        const SizedBox(
+          height: 2.0,
+        ),
         // -- contacts field --
         CRoundedContainer(
           bgColor: CColors.transparent,

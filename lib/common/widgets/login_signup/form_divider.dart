@@ -9,13 +9,19 @@ class CFormDivider extends StatelessWidget {
     this.dividerColor,
     this.dividerTxtColor,
     this.dividerTxtFontSizeFactor,
-    this.endIndent,
-    this.startIndent,
+    this.line1EndIndent,
+    this.line1StartIndent,
+    this.line2EndIndent,
+    this.line2StartIndent,
   });
 
   final Color? dividerColor, dividerTxtColor;
   final String dividerText;
-  final double? dividerTxtFontSizeFactor, endIndent, startIndent;
+  final double? dividerTxtFontSizeFactor,
+      line1EndIndent,
+      line1StartIndent,
+      line2EndIndent,
+      line2StartIndent;
 
   @override
   Widget build(BuildContext context) {
@@ -28,9 +34,9 @@ class CFormDivider extends StatelessWidget {
           child: Divider(
             color:
                 dividerColor ?? (isDarkTheme ? CColors.grey : CColors.darkGrey),
-            thickness: 0.5,
-            indent: startIndent ?? 60.0,
-            endIndent: endIndent ?? 5.0,
+            thickness: 0.3,
+            indent: line1StartIndent ?? 60.0,
+            endIndent: line1EndIndent ?? 5.0,
           ),
         ),
         Text(
@@ -44,9 +50,9 @@ class CFormDivider extends StatelessWidget {
           child: Divider(
             color:
                 dividerColor ?? (isDarkTheme ? CColors.darkGrey : CColors.grey),
-            thickness: 0.5,
-            indent: 5,
-            endIndent: 60,
+            thickness: 0.3,
+            indent: line2StartIndent ?? 5,
+            endIndent: line2EndIndent ?? 60,
           ),
         ),
       ],

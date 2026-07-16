@@ -57,22 +57,33 @@ class CCustomTypeaheadField extends StatelessWidget {
           autovalidateMode: AutovalidateMode.onUserInteraction,
           controller: controller,
           decoration: InputDecoration(
-            constraints: BoxConstraints(minHeight: minHeight ?? 65.0),
+            constraints: BoxConstraints(
+              minHeight: minHeight ?? 65.0,
+            ),
             filled: true,
             fillColor:
                 fillColor ??
                 (isDarkTheme ? CColors.transparent : CColors.white),
             focusColor: CColors.rBrown,
             enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(CSizes.cardRadiusXs),
-              borderSide: BorderSide(color: CColors.grey),
+              borderRadius: BorderRadius.circular(
+                CSizes.cardRadiusXs,
+              ),
+              borderSide: BorderSide(
+                color: CColors.grey,
+              ),
             ),
             focusedBorder: OutlineInputBorder(
               borderSide: BorderSide(
                 color:
-                    focusedBorderColor ?? CColors.black.withValues(alpha: 0.3),
+                    focusedBorderColor ??
+                    CColors.black.withValues(
+                      alpha: 0.3,
+                    ),
               ),
-              borderRadius: BorderRadius.circular(CSizes.cardRadiusSm),
+              borderRadius: BorderRadius.circular(
+                CSizes.cardRadiusSm,
+              ),
             ),
             labelStyle: Theme.of(context).textTheme.labelSmall,
             labelText: labelTxt,
@@ -87,21 +98,27 @@ class CCustomTypeaheadField extends StatelessWidget {
           ),
           focusNode: focusNode,
           onChanged: onFieldValueChanged,
-          scrollPadding: const EdgeInsets.only(bottom: 600.0),
-          style: const TextStyle(fontWeight: FontWeight.normal),
+          // scrollPadding: const EdgeInsets.only(
+          //   bottom: 600.0,
+          // ),
+          style: const TextStyle(
+            fontWeight: FontWeight.normal,
+          ),
           validator: fieldValidator,
         );
       },
       constraints: BoxConstraints(maxWidth: screenWidth),
       hideOnEmpty: true,
-      offset: Offset(0, 5.0),
+      offset: Offset(0, 1.0),
 
       listBuilder: (context, children) {
         return Obx(() {
           return ListView.separated(
             itemCount: contactsController.foundMatches.length,
             separatorBuilder: (context, index) {
-              return const SizedBox(height: 5.0);
+              return const SizedBox(
+                height: 5.0,
+              );
             }, // 10px space between items
             itemBuilder: (context, index) {
               return children[index];
@@ -120,11 +137,21 @@ class CCustomTypeaheadField extends StatelessWidget {
           return CRoundedContainer(
             bgColor: CColors.white,
             borderRadius: 6.0,
-            padding: const EdgeInsets.only(bottom: 4.0, left: 4.0, right: 4.0),
+            padding: const EdgeInsets.only(
+              bottom: 4.0,
+              left: 4.0,
+              right: 4.0,
+            ),
             child: ListTile(
-              contentPadding: contentPadding ?? const EdgeInsets.all(5.0),
+              contentPadding:
+                  contentPadding ??
+                  const EdgeInsets.all(
+                    5.0,
+                  ),
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10.0),
+                borderRadius: BorderRadius.circular(
+                  10.0,
+                ),
               ),
 
               // tileColor: isDarkTheme
@@ -134,7 +161,9 @@ class CCustomTypeaheadField extends StatelessWidget {
               //     : CColors.white.withValues(
               //         alpha: .3,
               //       ),
-              tileColor: CColors.white.withValues(alpha: .9),
+              tileColor: CColors.white.withValues(
+                alpha: .9,
+              ),
               title: Row(
                 mainAxisAlignment: MainAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
@@ -163,7 +192,9 @@ class CCustomTypeaheadField extends StatelessWidget {
                         )
                       : const SizedBox.shrink(),
                   if (includeAvatarOnSuggestion)
-                    const SizedBox(width: CSizes.spaceBtnInputFields / 2),
+                    const SizedBox(
+                      width: CSizes.spaceBtnInputFields / 2,
+                    ),
                   Column(
                     //mainAxisAlignment: MainAxisAlignment.start,
                     crossAxisAlignment: CrossAxisAlignment.start,

@@ -1,4 +1,5 @@
 import 'package:cri_v6/common/widgets/custom_shapes/containers/rounded_container.dart';
+import 'package:cri_v6/common/widgets/login_signup/form_divider.dart';
 import 'package:cri_v6/common/widgets/shimmers/vert_items_shimmer.dart';
 import 'package:cri_v6/features/personalization/controllers/contacts_controller.dart';
 import 'package:cri_v6/features/personalization/controllers/user_controller.dart';
@@ -203,7 +204,7 @@ class _CTxnItemsListViewState extends State<CTxnItemsListView> {
                       )
                     : isDarkTheme && !isExpanded
                     ? CColors.rBrown.withValues(
-                        alpha: .3,
+                        alpha: .4,
                       )
                     : isExpanded
                     ? CColors.lightGrey.withValues(
@@ -221,6 +222,7 @@ class _CTxnItemsListViewState extends State<CTxnItemsListView> {
                     ? (txnsController.transactionItems.length * 43) + 43
                     : 120.0,
                 isExpanded: isExpanded,
+                space: widget.space,
                 subTitleWidget: Flex(
                   direction: Axis.vertical,
                   mainAxisSize: MainAxisSize.min,
@@ -273,8 +275,8 @@ class _CTxnItemsListViewState extends State<CTxnItemsListView> {
                                 ),
                                 Text(
                                   demItems[index].customerContacts == ''
-                                      ? 'contacts: N/A'
-                                      : 'contacts: ${demItems[index].customerContacts}',
+                                      ? 'contacts: N/A '
+                                      : 'contacts: ${demItems[index].customerContacts} ',
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
                                   style:
@@ -294,23 +296,76 @@ class _CTxnItemsListViewState extends State<CTxnItemsListView> {
                     ),
                     Flexible(
                       flex: isExpanded ? 2 : 1,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            'discount:',
-                            style: Theme.of(
-                              context,
-                            ).textTheme.labelMedium!.apply(),
-                          ),
-                          Text(
-                            '$userCurrency.${demItems[index].discount}',
-                            style: Theme.of(
-                              context,
-                            ).textTheme.labelMedium!.apply(),
-                          ),
-                        ],
-                      ),
+                      child:
+                          widget.space == 'refunds' ||
+                              widget.space == 'contact refunds'
+                          ? Column(
+                              children: [
+                                Padding(
+                                  padding: EdgeInsets.only(
+                                    bottom: 5.0,
+                                    top: 1.0,
+                                  ),
+                                  child: CFormDivider(
+                                    dividerText: 'txn items',
+                                    dividerColor: CColors.rBrown.withValues(
+                                      alpha: 3.0,
+                                    ),
+                                    dividerTxtColor: CColors.rOrange,
+                                    dividerTxtFontSizeFactor: 1.03,
+                                    line1EndIndent: 10.0,
+                                    line1StartIndent: 40.0,
+                                    line2EndIndent: 30.0,
+                                    line2StartIndent: 10.0,
+                                  ),
+                                ),
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                      demItems[index].productName.toUpperCase(),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: Theme.of(
+                                        context,
+                                      ).textTheme.labelMedium!.apply(),
+                                    ),
+                                    Text(
+                                      'Amt: $userCurrency.${demItems[index].unitSellingPrice * demItems[index].qtyRefunded}',
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: Theme.of(
+                                        context,
+                                      ).textTheme.labelMedium!.apply(),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            )
+                          : Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Expanded(
+                                  flex: 5,
+                                  child: Text(
+                                    'discount:',
+                                    style: Theme.of(
+                                      context,
+                                    ).textTheme.labelMedium!.apply(),
+                                  ),
+                                ),
+                                Expanded(
+                                  flex: 1,
+                                  child: Text(
+                                    '$userCurrency.${demItems[index].discount}',
+                                    style: Theme.of(
+                                      context,
+                                    ).textTheme.labelMedium!.apply(),
+                                  ),
+                                ),
+                              ],
+                            ),
                     ),
                   ],
                 ),
@@ -321,13 +376,15 @@ class _CTxnItemsListViewState extends State<CTxnItemsListView> {
                       '#${demItems[index].txnId}',
                       style: Theme.of(
                         context,
-                      ).textTheme.labelLarge!.apply(),
+                      ).textTheme.labelMedium!.apply(),
                     ),
                     Text(
-                      'Amt: $userCurrency.${demItems[index].totalAmount}',
+                      widget.space == 'refunds'
+                          ? 'Amt: $userCurrency.${demItems[index].qtyRefunded * demItems[index].unitSellingPrice}'
+                          : 'Amt: $userCurrency.${demItems[index].totalAmount}',
                       style: Theme.of(
                         context,
-                      ).textTheme.labelLarge!.apply(),
+                      ).textTheme.labelMedium!.apply(),
                     ),
                   ],
                 ),

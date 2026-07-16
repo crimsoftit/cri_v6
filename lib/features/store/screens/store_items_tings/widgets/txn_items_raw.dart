@@ -83,7 +83,7 @@ class CTxnItemsListViewRaw extends StatelessWidget {
     );
   }
 
-  Widget buildRefundDetails(BuildContext context, String msg) {
+  Widget buildRefundDetails(BuildContext context, String refundReason) {
     return CRoundedContainer(
       bgColor: CColors.transparent,
       showBorder: false,
@@ -94,7 +94,7 @@ class CTxnItemsListViewRaw extends StatelessWidget {
           Row(
             children: [
               Text(
-                msg,
+                refundReason,
                 style: Theme.of(context).textTheme.labelMedium!.apply(
                   color: CColors.darkGrey,
                   //fontSizeFactor: .8,

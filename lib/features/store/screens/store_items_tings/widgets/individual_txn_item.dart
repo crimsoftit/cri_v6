@@ -6,7 +6,6 @@ import 'package:cri_v6/utils/constants/colors.dart';
 import 'package:cri_v6/utils/constants/sizes.dart';
 import 'package:cri_v6/utils/helpers/formatter.dart';
 import 'package:cri_v6/utils/helpers/helper_functions.dart';
-import 'package:cri_v6/utils/popups/snackbars.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -14,8 +13,9 @@ class CIndividualTxnItem extends StatelessWidget {
   CIndividualTxnItem({
     this.subtitle,
     this.title,
-    required this.txnId,
+    required this.space,
     required this.isExpanded,
+    required this.txnId,
     this.boxColor,
     this.boxHeight,
     this.boxWidth,
@@ -31,6 +31,7 @@ class CIndividualTxnItem extends StatelessWidget {
   final double? boxHeight;
   final double? boxWidth;
   final int txnId;
+  final String space;
   final String? subtitle, title;
   final Widget? leadingWidget, subTitleWidget, titleWidget;
 
@@ -39,6 +40,7 @@ class CIndividualTxnItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDarkTheme = CHelperFunctions.isDarkMode(context);
     final txnsController = Get.put(CTxnsController());
     final userController = Get.put(CUserController());
     final userCurrency = CHelperFunctions.formatCurrency(
@@ -82,7 +84,7 @@ class CIndividualTxnItem extends StatelessWidget {
           // padding: const EdgeInsets.only(
           //   bottom: 10.0,
           // ),
-          width: boxWidth ?? CHelperFunctions.screenWidth() * .8,
+          width: boxWidth ?? CHelperFunctions.screenWidth() * .9,
 
           child: Flex(
             direction: Axis.vertical,
@@ -123,7 +125,15 @@ class CIndividualTxnItem extends StatelessWidget {
                     ),
                     child: CFormDivider(
                       dividerText: 'txn items',
-                      dividerTxtFontSizeFactor: 1.1,
+                      dividerColor: CColors.rBrown.withValues(
+                        alpha: 3.0,
+                      ),
+                      dividerTxtColor: CColors.rOrange,
+                      dividerTxtFontSizeFactor: 1.03,
+                      line1EndIndent: 10.0,
+                      line1StartIndent: 40.0,
+                      line2EndIndent: 30.0,
+                      line2StartIndent: 10.0,
                     ),
                   ),
                 ),
@@ -133,7 +143,7 @@ class CIndividualTxnItem extends StatelessWidget {
                   flex: 1,
                   child: Padding(
                     padding: const EdgeInsets.only(
-                      right: 10.0,
+                      right: 5.0,
                     ),
                     child: Scrollbar(
                       // 2. Attach the controller to Scrollbar
@@ -142,7 +152,7 @@ class CIndividualTxnItem extends StatelessWidget {
                         50,
                         50,
                       ),
-                      thickness: 5.0,
+                      thickness: 2.0,
                       thumbVisibility: true,
                       child: ListView.builder(
                         // 4. Attach the SAME controller to ListView
@@ -154,6 +164,9 @@ class CIndividualTxnItem extends StatelessWidget {
                             children: [
                               CRoundedContainer(
                                 bgColor: CColors.transparent,
+                                padding: const EdgeInsets.all(
+                                  0,
+                                ),
                                 width: CHelperFunctions.screenWidth() * .45,
                                 child: Text(
                                   txnsController
@@ -162,40 +175,140 @@ class CIndividualTxnItem extends StatelessWidget {
                                       .toUpperCase(),
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
-                                  style: Theme.of(
-                                    context,
-                                  ).textTheme.labelMedium!.apply(),
+                                  style:
+                                      Theme.of(
+                                        context,
+                                      ).textTheme.labelSmall!.apply(
+                                        fontSizeFactor: 1.1,
+                                      ),
                                 ),
                               ),
                               CRoundedContainer(
                                 bgColor: CColors.transparent,
-                                width: CHelperFunctions.screenWidth() * .35,
+                                padding: const EdgeInsets.all(
+                                  0,
+                                ),
+                                width: CHelperFunctions.screenWidth() * .27,
                                 child: Text(
-                                  '${CFormatter.formatItemQtyDisplays(txnsController.transactionItems[index].quantity, txnsController.transactionItems[index].itemMetrics)} ${CFormatter.formatItemMetrics(txnsController.transactionItems[index].itemMetrics, txnsController.transactionItems[index].quantity)} @ $userCurrency.${txnsController.transactionItems[index].unitSellingPrice}',
+                                  '${CFormatter.formatItemQtyDisplays(txnsController.transactionItems[index].quantity, txnsController.transactionItems[index].itemMetrics)}${CFormatter.formatItemMetrics(txnsController.transactionItems[index].itemMetrics, txnsController.transactionItems[index].quantity)} $userCurrency.${txnsController.transactionItems[index].unitSellingPrice * txnsController.transactionItems[index].quantity}',
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style:
+                                      Theme.of(
+                                        context,
+                                      ).textTheme.labelSmall!.apply(
+                                        fontSizeFactor: 1.1,
+                                      ),
                                 ),
                               ),
 
-                              GestureDetector(
-                                onTap: () {
-                                  CPopupSnackBar.customToast(
-                                    forInternetConnectivityStatus: false,
-                                    message: 'rada clean',
-                                  );
-                                },
-                                child: Icon(
-                                  Icons.arrow_forward_ios,
-                                  size: CSizes.iconXs,
+                              // GestureDetector(
+                              //   onTap: () {
+                              //     CPopupSnackBar.customToast(
+                              //       forInternetConnectivityStatus: false,
+                              //       message: 'rada clean',
+                              //     );
+                              //   },
+                              //   child: Icon(
+                              //     Icons.more_vert,
+                              //     size: CSizes.iconXs,
+                              //   ),
+                              // ),
+                              CRoundedContainer(
+                                bgColor: CColors.transparent,
+                                padding: const EdgeInsets.only(
+                                  right: 5.0,
+                                ),
+                                child: GestureDetector(
+                                  onTapDown: (TapDownDetails details) {
+                                    showMenu<int>(
+                                      context: context,
+                                      position: RelativeRect.fromLTRB(
+                                        details.globalPosition.dx,
+                                        details.globalPosition.dy,
+                                        details.globalPosition.dx,
+                                        details.globalPosition.dy,
+                                      ),
+                                      items: [
+                                        if (space != 'refunds' &&
+                                            space != 'contact refunds')
+                                          PopupMenuItem(
+                                            onTap: () {
+                                              txnsController
+                                                  .refundItemActionModal(
+                                                    context,
+                                                    txnsController
+                                                        .transactionItems[index],
+                                                  );
+                                            },
+                                            value: 1,
+                                            child: Text(
+                                              'Refund',
+                                            ),
+                                          ),
+                                        PopupMenuItem(
+                                          value: 2,
+                                          child: Text('Option 2'),
+                                        ),
+                                      ],
+                                    );
+                                  },
+                                  child: Icon(
+                                    Icons.more_vert,
+                                    color: isDarkTheme
+                                        ? CColors.darkGrey
+                                        : CColors.rBrown,
+                                    size: CSizes.iconSm,
+                                  ),
                                 ),
                               ),
+                              // CRoundedContainer(
+                              //   bgColor: CColors.transparent,
+                              //   // padding: const EdgeInsets.only(
+                              //   //   top: 5.0,
+                              //   // ),
+                              //   width: CHelperFunctions.screenWidth() * .26,
+                              //   child: PopupMenuButton<int>(
+                              //     borderRadius: BorderRadius.circular(
+                              //       20,
+                              //     ),
+                              //     icon: const Icon(
+                              //       Icons.more_vert,
+                              //     ),
+                              //     iconColor: CColors.rBrown,
+                              //     iconSize: CSizes.iconSm,
+                              //     itemBuilder: (context) {
+                              //       return <PopupMenuEntry<int>>[
+                              //         const PopupMenuItem(
+                              //           child: Text(
+                              //             'option 1',
+                              //           ),
+                              //         ),
+                              //         const PopupMenuItem(
+                              //           child: Text(
+                              //             'option 2',
+                              //           ),
+                              //         ),
+                              //       ];
+                              //     },
+                              //     onSelected: (int result) {
+                              //       CPopupSnackBar.customToast(
+                              //         forInternetConnectivityStatus: false,
+                              //         message: 'option $result',
+                              //       );
+                              //     },
+                              //     padding: const EdgeInsets.all(
+                              //       0,
+                              //     ),
+                              //   ),
+                              // ),
                             ],
                           );
                         },
                         itemCount: txnsController.transactionItems.length,
                         padding: const EdgeInsets.only(
-                          bottom: 5.0,
                           left: 10.0,
-                          right: 10.0,
-                          top: 5.0,
+                          right: 5.0,
                         ),
                         //physics: AlwaysScrollableScrollPhysics(),
                         shrinkWrap: true,

@@ -147,7 +147,7 @@ class CTxnsController extends GetxController {
 
     if (await CNetworkManager.instance.isConnected() &&
         CNetworkManager.instance.connectionIsStable.value) {
-      StoreSheetsApi.initSpreadSheets();
+      //StoreSheetsApi.initSpreadSheets();
       await initTxnsSync();
     }
 
@@ -176,11 +176,16 @@ class CTxnsController extends GetxController {
   Future initTxnsSync() async {
     await fetchSoldItems();
     if (localStorage.read('SyncTxnsDataWithCloud') == true && sales.isEmpty) {
-      //await importTxnsFromCloud();
       if (await importTxnsFromCloud()) {
-        localStorage.write('SyncTxnsDataWithCloud', false);
+        localStorage.write(
+          'SyncTxnsDataWithCloud',
+          false,
+        );
       } else {
-        localStorage.write('SyncTxnsDataWithCloud', true);
+        localStorage.write(
+          'SyncTxnsDataWithCloud',
+          true,
+        );
       }
     }
   }
@@ -395,12 +400,21 @@ class CTxnsController extends GetxController {
         (_) {
           if (txns.isNotEmpty && soldItemsFetched.value && txnsFetched.value) {
             var listToSearchFrom = foundSales.isNotEmpty ? foundSales : sales;
-            var txnItems = listToSearchFrom
-                .where(
-                  (soldItem) =>
-                      soldItem.txnId.toString().contains(txnId.toString()),
-                )
-                .toList();
+
+            // TODO: should refunded items be loaded as well ???
+            // var txnItems = listToSearchFrom
+            //     .where(
+            //       (soldItem) =>
+            //           soldItem.txnId.toString().contains(txnId.toString()),
+            //     )
+            //     .toList();
+
+            var txnItems = listToSearchFrom.where(
+              (soldItem) {
+                return soldItem.txnId.toString().contains(txnId.toString()) &&
+                    soldItem.quantity > 0;
+              },
+            ).toList();
 
             transactionItems.assignAll(txnItems);
           } else {
@@ -857,7 +871,7 @@ class CTxnsController extends GetxController {
                 .toList();
 
             // -- save sales data to cloud --
-            StoreSheetsApi.initSpreadSheets();
+            //StoreSheetsApi.initSpreadSheets();
             StoreSheetsApi.saveTxnsToGSheets(gSheetTxnAppends).then((
               result,
             ) async {
@@ -1083,9 +1097,12 @@ class CTxnsController extends GetxController {
                     color: isDarkTheme ? CColors.white : CColors.rBrown,
                   ),
                 ),
-                const SizedBox(height: CSizes.spaceBtnSections / 4),
+                const SizedBox(
+                  height: CSizes.spaceBtnSections / 4,
+                ),
+
                 Text(
-                  '${soldItem.itemMetrics == 'units' ? soldItem.quantity.toInt() : soldItem.quantity} ${CFormatter.formatInventoryMetrics(soldItem.productId)}(s) sold; (${soldItem.itemMetrics == 'units' ? soldItem.qtyRefunded.toInt() : soldItem.qtyRefunded} ${CFormatter.formatInventoryMetrics(soldItem.productId)}(s) refunded)',
+                  '${CFormatter.formatItemQtyDisplays(soldItem.quantity, soldItem.itemMetrics)} ${CFormatter.formatItemMetrics(soldItem.itemMetrics, soldItem.quantity)} sold; ${CFormatter.formatItemQtyDisplays(soldItem.qtyRefunded, soldItem.itemMetrics)} refunded)',
                   style: Theme.of(context).textTheme.labelMedium!.apply(
                     color: isDarkTheme ? CColors.white : CColors.rBrown,
                   ),
@@ -1152,7 +1169,10 @@ class CTxnsController extends GetxController {
                           ),
                           prefixIconConstraints: BoxConstraints(maxWidth: 30.0),
                           suffixIcon: IconButton(
-                            icon: Icon(Iconsax.add_circle, size: CSizes.iconMd),
+                            icon: Icon(
+                              Iconsax.add_circle,
+                              size: CSizes.iconMd,
+                            ),
                             color: CColors.darkGrey,
                             onPressed: () {
                               if (refundQty.value < soldItem.quantity) {
@@ -1210,7 +1230,9 @@ class CTxnsController extends GetxController {
                     ),
                   ],
                 ),
-                const SizedBox(height: CSizes.spaceBtnInputFields),
+                const SizedBox(
+                  height: CSizes.spaceBtnInputFields,
+                ),
 
                 // -- textarea for reason of refund --
                 Padding(
@@ -1222,10 +1244,14 @@ class CTxnsController extends GetxController {
                       // filled: true,
                       labelText: 'reason for refund(optional)',
                       //labelStyle: textStyle,
-                      suffixIcon: const Icon(Iconsax.message),
+                      suffixIcon: const Icon(
+                        Iconsax.message,
+                      ),
                     ),
                     maxLines: 1, // marked for observation - could be a textarea
-                    style: const TextStyle(fontWeight: FontWeight.normal),
+                    style: const TextStyle(
+                      fontWeight: FontWeight.normal,
+                    ),
                   ),
                 ),
                 // Divider(
@@ -1251,7 +1277,7 @@ class CTxnsController extends GetxController {
                               if (invItemIndex == -1) {
                                 CPopupSnackBar.warningSnackBar(
                                   message:
-                                      '${soldItem.productName} is no longer listed in your inventory',
+                                      '${soldItem.productName.toUpperCase()} is no longer listed in your inventory',
                                   title: 'item not found!',
                                 );
                               } else {

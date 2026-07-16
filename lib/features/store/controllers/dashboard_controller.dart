@@ -498,6 +498,7 @@ class CDashboardController extends GetxController {
   }
 
   List<CMonthlySalesModel> generateMonthlySalesWithoutMonths(int yr) {
+    monthlyTotals.value = <int, double>{};
     for (var monthSales in txnsController.sales) {
       final String rawSaleDate = monthSales.lastModified.trim();
       var formattedDate = DateTime.parse(rawSaleDate.replaceAll(' @', ''));
