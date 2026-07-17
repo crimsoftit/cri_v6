@@ -233,8 +233,8 @@ class CIndividualTxnItem extends StatelessWidget {
                                         if (space != 'refunds' &&
                                             space != 'contact refunds')
                                           PopupMenuItem(
-                                            onTap: () {
-                                              txnsController
+                                            onTap: () async {
+                                              await txnsController
                                                   .refundItemActionModal(
                                                     context,
                                                     txnsController

@@ -295,7 +295,7 @@ class CTxnsController extends GetxController {
               ? 'update'
               : relatedItem.syncAction;
 
-          dbHelper.updateReceiptItem(relatedItem, relatedItem.soldItemId!);
+          dbHelper.updateReceiptItem(relatedItem);
         }
         await fetchTxns();
       }
@@ -831,7 +831,7 @@ class CTxnsController extends GetxController {
               updateReceiptItemCloudData(updateItem.soldItemId!, updateItem);
 
               // -- update sales data locally
-              dbHelper.updateReceiptItem(updateItem, updateItem.soldItemId!);
+              dbHelper.updateReceiptItem(updateItem);
             }
           }
 
@@ -1043,9 +1043,11 @@ class CTxnsController extends GetxController {
   }
 
   /// -- popup for item refund --
-  void refundItemWarningPopup(CTxnsModel soldItem) {
-    Get.defaultDialog(
-      contentPadding: const EdgeInsets.all(CSizes.sm),
+  Future<void> refundItemWarningPopup(CTxnsModel soldItem) async {
+    await Get.defaultDialog(
+      contentPadding: const EdgeInsets.all(
+        CSizes.sm,
+      ),
       title: 'Refund ${soldItem.productName}?',
       // middleText:
       //     'Are you certain you want to refund ${soldItem.productName} for $userCurrency.${soldItem.unitSellingPrice * soldItem.quantity}? This action can\'t be undone!',
@@ -1058,7 +1060,9 @@ class CTxnsController extends GetxController {
         ),
         child: const Padding(
           padding: EdgeInsets.symmetric(horizontal: CSizes.sm),
-          child: Text('confirm refund'),
+          child: Text(
+            'confirm refund',
+          ),
         ),
       ),
       cancel: OutlinedButton(
@@ -1073,9 +1077,9 @@ class CTxnsController extends GetxController {
   Future<dynamic> refundItemActionModal(
     BuildContext context,
     CTxnsModel soldItem,
-  ) {
+  ) async {
     final isDarkTheme = CHelperFunctions.isDarkMode(context);
-    return showModalBottomSheet(
+    return await showModalBottomSheet(
       context: context,
       isDismissible: false,
       isScrollControlled: true,
@@ -1086,7 +1090,9 @@ class CTxnsController extends GetxController {
           padding: MediaQuery.of(context).viewInsets,
           child: CRoundedContainer(
             height: CHelperFunctions.screenHeight() * 0.38,
-            padding: const EdgeInsets.all(CSizes.lg / 3),
+            padding: const EdgeInsets.all(
+              CSizes.lg / 3,
+            ),
             bgColor: isDarkTheme ? CColors.rBrown : CColors.white,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
@@ -1113,14 +1119,18 @@ class CTxnsController extends GetxController {
                   indent: 100.0,
                   thickness: 0.2,
                 ),
-                const SizedBox(height: CSizes.spaceBtnInputFields / 4),
+                const SizedBox(
+                  height: CSizes.spaceBtnInputFields / 4,
+                ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      'qty (${CFormatter.formatItemMetrics(soldItem.itemMetrics, qtyAvailable.value)}):',
+                      '${CFormatter.formatItemMetrics(soldItem.itemMetrics, qtyAvailable.value)})',
                     ),
-                    const SizedBox(width: CSizes.spaceBtnInputFields),
+                    const SizedBox(
+                      width: CSizes.spaceBtnInputFields,
+                    ),
                     SizedBox(
                       height: 35.0,
                       width: CHelperFunctions.screenWidth() * .4,
@@ -1165,9 +1175,13 @@ class CTxnsController extends GetxController {
                                     );
                               }
                             },
-                            padding: const EdgeInsets.all(1.0),
+                            padding: const EdgeInsets.all(
+                              1.0,
+                            ),
                           ),
-                          prefixIconConstraints: BoxConstraints(maxWidth: 30.0),
+                          prefixIconConstraints: BoxConstraints(
+                            maxWidth: 30.0,
+                          ),
                           suffixIcon: IconButton(
                             icon: Icon(
                               Iconsax.add_circle,
@@ -1185,9 +1199,13 @@ class CTxnsController extends GetxController {
                                     );
                               }
                             },
-                            padding: const EdgeInsets.all(1.0),
+                            padding: const EdgeInsets.all(
+                              1.0,
+                            ),
                           ),
-                          suffixIconConstraints: BoxConstraints(maxWidth: 30.0),
+                          suffixIconConstraints: BoxConstraints(
+                            maxWidth: 30.0,
+                          ),
                         ),
                         //initialValue: '0',
                         keyboardType: TextInputType.numberWithOptions(
@@ -1208,8 +1226,6 @@ class CTxnsController extends GetxController {
                                   txtRefundQty.text.isNotEmpty) &&
                               double.parse(value) <= soldItem.quantity) {
                             refundQty.value = double.parse(value);
-                          } else {
-                            refundQty.value = soldItem.quantity;
                           }
                         },
                         textAlign: TextAlign.center,
@@ -1236,7 +1252,9 @@ class CTxnsController extends GetxController {
 
                 // -- textarea for reason of refund --
                 Padding(
-                  padding: const EdgeInsets.all(10.0),
+                  padding: const EdgeInsets.all(
+                    10.0,
+                  ),
                   child: TextFormField(
                     controller: txtRefundReason,
                     decoration: InputDecoration(
@@ -1257,7 +1275,9 @@ class CTxnsController extends GetxController {
                 // Divider(
                 //   color: isDarkTheme ? CColors.white : CColors.rBrown,
                 // ),
-                const SizedBox(height: CSizes.spaceBtnInputFields),
+                const SizedBox(
+                  height: CSizes.spaceBtnInputFields,
+                ),
                 Row(
                   children: [
                     SizedBox(
@@ -1265,124 +1285,99 @@ class CTxnsController extends GetxController {
                       child: ElevatedButton.icon(
                         onPressed: () async {
                           // refund item actions - inventory & txn item updates;
+                          soldItem.lastModified = DateFormat(
+                            'yyyy-MM-dd @ kk:mm',
+                          ).format(clock.now());
+                          soldItem.refundReason = txtRefundReason.text.trim();
+                          soldItem.qtyRefunded += double.parse(
+                            txtRefundQty.text.trim(),
+                          );
+                          soldItem.quantity -= double.parse(
+                            txtRefundQty.text.trim(),
+                          );
 
-                          await fetchSoldItems().then((result) async {
-                            if (result.isNotEmpty) {
-                              invController.fetchUserInventoryItems();
-                              var invItemIndex = invController.inventoryItems
-                                  .indexWhere(
-                                    (item) =>
-                                        item.productId == soldItem.productId,
-                                  );
-                              if (invItemIndex == -1) {
-                                CPopupSnackBar.warningSnackBar(
-                                  message:
-                                      '${soldItem.productName.toUpperCase()} is no longer listed in your inventory',
-                                  title: 'item not found!',
+                          soldItem.syncAction = soldItem.isSynced == 0
+                              ? 'append'
+                              : 'update';
+                          soldItem.totalAmount -=
+                              double.parse(txtRefundQty.text.trim()) *
+                              soldItem.unitSellingPrice;
+
+                          if (await dbHelper.updateReceiptItem(soldItem) >= 1) {
+                            var invItemIndex = invController.inventoryItems
+                                .indexWhere(
+                                  (item) =>
+                                      item.productId == soldItem.productId,
                                 );
-                              } else {
-                                var inventoryItem = invController.inventoryItems
-                                    .firstWhere(
-                                      (item) =>
-                                          item.productId == soldItem.productId,
-                                    );
+                            if (invItemIndex != -1) {
+                              var thisInventoryItem =
+                                  invController.inventoryItems[invItemIndex];
+                              thisInventoryItem.quantity += double.parse(
+                                txtRefundQty.text.trim(),
+                              );
+                              thisInventoryItem.qtyRefunded += double.parse(
+                                txtRefundQty.text.trim(),
+                              );
+                              thisInventoryItem.qtySold -= double.parse(
+                                txtRefundQty.text.trim(),
+                              );
+                              thisInventoryItem.lastModified = DateFormat(
+                                'yyyy-MM-dd @ kk:mm',
+                              ).format(clock.now());
+                              thisInventoryItem.syncAction =
+                                  thisInventoryItem.isSynced == 0
+                                  ? 'append'
+                                  : 'update';
+                              if (await dbHelper.updateInventoryItem(
+                                    thisInventoryItem,
+                                  ) >=
+                                  1) {
+                                CPopupSnackBar.successSnackBar(
+                                  title: 'REFUND SUCCESSFUL!',
+                                  message:
+                                      '${CFormatter.formatItemQtyDisplays(double.parse(txtRefundQty.text.trim()), soldItem.itemMetrics)} ${CFormatter.formatItemMetrics(soldItem.itemMetrics, double.parse(txtRefundQty.text.trim()))} refunded for ${soldItem.productName}',
+                                );
 
-                                // -- update stock count & total sales for this inventory item --
-                                if (inventoryItem.productId! > 100 &&
-                                    soldItem.quantity >= refundQty.value) {
-                                  inventoryItem.quantity += refundQty.value;
-                                  inventoryItem.qtyRefunded += refundQty.value;
-                                  inventoryItem.qtySold -= refundQty.value;
-                                  inventoryItem.lastModified = DateFormat(
-                                    'yyyy-MM-dd @ kk:mm',
-                                  ).format(clock.now());
-                                  inventoryItem.syncAction =
-                                      inventoryItem.isSynced == 1
-                                      ? 'update'
-                                      : 'append';
-
-                                  await dbHelper
-                                      .updateInventoryItem(
-                                        inventoryItem,
-                                      )
-                                      .then((result) async {
-                                        /// -- update receipt item --
-                                        var txnItem = sales.firstWhere(
-                                          (txnItem) =>
-                                              txnItem.productId ==
-                                              soldItem.productId,
-                                        );
-
-                                        txnItem.refundReason = txtRefundReason
-                                            .text
-                                            .trim();
-                                        txnItem.quantity -= refundQty.value;
-                                        txnItem.qtyRefunded += refundQty.value;
-                                        txnItem.totalAmount -=
-                                            refundQty.value *
-                                            txnItem.unitSellingPrice;
-                                        txnItem.lastModified = DateFormat(
-                                          'yyyy-MM-dd @ kk:mm',
-                                        ).format(clock.now());
-                                        txnItem.syncAction =
-                                            txnItem.isSynced == 0
-                                            ? 'append'
-                                            : 'update';
-                                        //txnItem.txnStatus = 'refunded';
-
-                                        dbHelper
-                                            .updateReceiptItem(
-                                              txnItem,
-                                              txnItem.soldItemId!,
-                                            )
-                                            .then((_) {
-                                              fetchSoldItems();
-                                              refundDataUpdated.value = true;
-                                            });
-
-                                        Navigator.of(
-                                          Get.overlayContext!,
-                                        ).pop(true);
-                                      });
-                                } else {
-                                  if (refundQty.value > soldItem.quantity) {
-                                    CPopupSnackBar.warningSnackBar(
-                                      message:
-                                          'only ${CFormatter.formatItemQtyDisplays(soldItem.quantity, soldItem.itemMetrics)} of ${CFormatter.formatItemMetrics(soldItem.itemMetrics, soldItem.quantity)} were sold to this customer!',
-                                      title: 'refund qty is invalid!',
-                                    );
-                                  }
-                                  if (kDebugMode) {
-                                    CPopupSnackBar.errorSnackBar(
-                                      title: 'inv item error!!',
-                                      message:
-                                          'ERROR: INVENTORY ITEM productId IS NULL!!',
-                                    );
-                                  }
-                                }
+                                await fetchTxnItems(soldItem.txnId);
                               }
                             }
-                          });
+                          } else {
+                            CPopupSnackBar.errorSnackBar(
+                              title: 'REFUND UPDATE FAILED!',
+                            );
+                          }
+
+                          Navigator.of(Get.overlayContext!).pop(true);
                         },
                         label: Text(
                           'REFUND',
-                          style: Theme.of(
-                            context,
-                          ).textTheme.bodyMedium!.apply(color: Colors.red),
+                          style:
+                              Theme.of(
+                                context,
+                              ).textTheme.bodyMedium!.apply(
+                                color: Colors.red,
+                              ),
                         ),
-                        icon: Icon(Iconsax.wallet_check, color: Colors.red),
+                        icon: Icon(
+                          Iconsax.wallet_check,
+                          color: Colors.red,
+                        ),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: CColors.black.withValues(alpha: 0.5),
+                          backgroundColor: CColors.black.withValues(
+                            alpha: 0.5,
+                          ),
                         ),
                       ),
                     ),
-                    const SizedBox(width: CSizes.spaceBtnInputFields),
+                    const SizedBox(
+                      width: CSizes.spaceBtnInputFields,
+                    ),
                     SizedBox(
                       width: CHelperFunctions.screenWidth() * 0.45,
                       child: ElevatedButton.icon(
                         onPressed: () {
                           resetSalesFields();
-                          Navigator.of(context).pop(true);
+                          Navigator.of(Get.overlayContext!).pop(true);
                         },
                         label: Text(
                           'cancel',
@@ -1843,9 +1838,6 @@ class CTxnsController extends GetxController {
                                   txnItem.customerBalance = 0.0;
                                 }
 
-                                // txnItem.lastModified = DateFormat(
-                                //   'yyyy-MM-dd @ kk:mm',
-                                // ).format(clock.now());
                                 txnItem.syncAction = txnItem.isSynced == 0
                                     ? 'append'
                                     : 'update';
@@ -1858,7 +1850,6 @@ class CTxnsController extends GetxController {
                                 dbHelper
                                     .updateReceiptItem(
                                       txnItem,
-                                      txnItem.soldItemId!,
                                     )
                                     .then((_) async {
                                       await fetchTxns();

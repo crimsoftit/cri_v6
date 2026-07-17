@@ -253,6 +253,43 @@ class _CTxnItemsListViewState extends State<CTxnItemsListView> {
                                     fontStyle: FontStyle.italic,
                                   ),
                             ),
+                            // Wrap(
+                            //   alignment: WrapAlignment.end,
+                            //   direction: Axis.vertical,
+                            //   spacing: 5.0,
+                            //   children: [
+                            //     Text(
+                            //       demItems[index].customerName == ''
+                            //           ? 'N/A '
+                            //           : '${demItems[index].customerName} (${demItems[index].customerContacts})',
+                            //       maxLines: 1,
+                            //       overflow: TextOverflow.ellipsis,
+                            //       style:
+                            //           Theme.of(
+                            //             context,
+                            //           ).textTheme.labelMedium!.apply(
+                            //             color: CColors.darkGrey,
+                            //             fontStyle: FontStyle.italic,
+                            //           ),
+                            //       textAlign: TextAlign.right,
+                            //     ),
+                            //     Text(
+                            //       demItems[index].customerContacts == ''
+                            //           ? 'contacts: N/A '
+                            //           : 'contacts: ${demItems[index].customerContacts} ',
+                            //       maxLines: 1,
+                            //       overflow: TextOverflow.ellipsis,
+                            //       style:
+                            //           Theme.of(
+                            //             context,
+                            //           ).textTheme.labelMedium!.apply(
+                            //             color: CColors.darkGrey,
+                            //             fontStyle: FontStyle.italic,
+                            //           ),
+                            //       textAlign: TextAlign.right,
+                            //     ),
+                            //   ],
+                            // ),
                             Wrap(
                               alignment: WrapAlignment.end,
                               direction: Axis.vertical,
@@ -260,23 +297,10 @@ class _CTxnItemsListViewState extends State<CTxnItemsListView> {
                               children: [
                                 Text(
                                   demItems[index].customerName == ''
-                                      ? 'name: N/A '
-                                      : 'name: ${demItems[index].customerName}; ',
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                  style:
-                                      Theme.of(
-                                        context,
-                                      ).textTheme.labelMedium!.apply(
-                                        color: CColors.darkGrey,
-                                        fontStyle: FontStyle.italic,
-                                      ),
-                                  textAlign: TextAlign.right,
-                                ),
-                                Text(
-                                  demItems[index].customerContacts == ''
-                                      ? 'contacts: N/A '
-                                      : 'contacts: ${demItems[index].customerContacts} ',
+                                      ? 'N/A '
+                                      : demItems[index].customerContacts == ''
+                                      ? '${demItems[index].customerName}'
+                                      : '${demItems[index].customerName}(${demItems[index].customerContacts})',
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
                                   style:
@@ -323,21 +347,28 @@ class _CTxnItemsListViewState extends State<CTxnItemsListView> {
                                   mainAxisAlignment:
                                       MainAxisAlignment.spaceBetween,
                                   children: [
-                                    Text(
-                                      demItems[index].productName.toUpperCase(),
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                      style: Theme.of(
-                                        context,
-                                      ).textTheme.labelMedium!.apply(),
+                                    Expanded(
+                                      flex: 5,
+                                      child: Text(
+                                        demItems[index].productName
+                                            .toUpperCase(),
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: Theme.of(
+                                          context,
+                                        ).textTheme.labelMedium!.apply(),
+                                      ),
                                     ),
-                                    Text(
-                                      'Amt: $userCurrency.${demItems[index].unitSellingPrice * demItems[index].qtyRefunded}',
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                      style: Theme.of(
-                                        context,
-                                      ).textTheme.labelMedium!.apply(),
+                                    Expanded(
+                                      flex: 1,
+                                      child: Text(
+                                        'Amt: $userCurrency.${demItems[index].unitSellingPrice * demItems[index].qtyRefunded}',
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: Theme.of(
+                                          context,
+                                        ).textTheme.labelMedium!.apply(),
+                                      ),
                                     ),
                                   ],
                                 ),

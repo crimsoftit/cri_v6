@@ -107,7 +107,7 @@ class CCheckoutScreen extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        'Chekout',
+                        'Checkout',
                         style: Theme.of(context).textTheme.labelLarge!.apply(
                           color: CNetworkManager.instance.hasConnection.value
                               ? CColors.rBrown
