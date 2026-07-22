@@ -280,7 +280,6 @@ class StoreSheetsApi extends GetxController {
           title: 'error syncing txns'.toUpperCase(),
         );
       }
-      // throw 'ERROR SYNCING TXNS: $e';
       rethrow;
     }
   }

@@ -119,6 +119,8 @@ class CTxnsController extends GetxController {
   final RxDouble totalAmount = 0.0.obs;
   final RxDouble customerBal = 0.0.obs;
 
+  // TODO: group sales by txn id --
+
   /// -- controllers - classes --
   final userController = Get.put(CUserController());
   final searchController = Get.put(CSearchBarController());
@@ -238,9 +240,38 @@ class CTxnsController extends GetxController {
         foundRefunds.assignAll(refundedItems);
       }
 
-      /// -- initialize sales summary values --
+      // assign complete txns to receipts list
+      final completeTxns = sales
+          .where(
+            (sale) =>
+                sale.txnStatus.toLowerCase().contains(
+                  'complete'.toLowerCase(),
+                ) &&
+                sale.quantity > 0,
+          )
+          .toList();
+      receipts.assignAll(completeTxns);
+
+      // assign credit sales to invoices list
+      final creditSales = sales
+          .where((sale) => sale.txnStatus.toLowerCase().contains('invoiced'))
+          .toList();
+      invoices.assignAll(creditSales);
+
+      if (searchController.showSearchField.value &&
+          searchController.txtSearchField.text == '') {
+        foundReceipts.assignAll(receipts);
+        foundInvoices.assignAll(creditSales);
+      }
 
       final dashboardController = Get.put(CDashboardController());
+
+      dashboardController.generateSalesFilterItems().then((_) {
+        dashboardController.setDefaultSalesFilterPeriod();
+      });
+
+      /// -- initialize sales summary values --
+
       if (dateRangeFieldController.text == '' &&
           !dashboardController.showSummaryFilterField.value) {
         initializeSalesSummaryValues();
@@ -323,7 +354,6 @@ class CTxnsController extends GetxController {
   /// -- fetch txns from sqflite db --
   Future<List<CTxnsModel>> fetchTxns() async {
     try {
-      final dashboardController = Get.put(CDashboardController());
       // start loader while txns are fetched
       isLoading.value = true;
       //await dbHelper.openDb();
@@ -341,34 +371,6 @@ class CTxnsController extends GetxController {
           searchController.txtSearchField.text == '') {
         foundTxns.assignAll(transactions);
       }
-
-      // assign complete txns to receipts list
-      final completeTxns = txns
-          .where(
-            (txn) =>
-                txn.txnStatus.toLowerCase().contains(
-                  'complete'.toLowerCase(),
-                ) &&
-                txn.quantity > 0,
-          )
-          .toList();
-      receipts.assignAll(completeTxns);
-
-      // assign credit sales to invoices list
-      final creditSales = txns
-          .where((txn) => txn.txnStatus.toLowerCase().contains('invoiced'))
-          .toList();
-      invoices.assignAll(creditSales);
-
-      if (searchController.showSearchField.value &&
-          searchController.txtSearchField.text == '') {
-        foundReceipts.assignAll(receipts);
-        foundInvoices.assignAll(creditSales);
-      }
-
-      dashboardController.generateSalesFilterItems().then((_) {
-        dashboardController.setDefaultSalesFilterPeriod();
-      });
 
       // stop loader
       isLoading.value = false;
@@ -396,39 +398,16 @@ class CTxnsController extends GetxController {
       txnItemsLoading.value = true;
       isLoading.value = true;
 
-      await fetchTxns().then(
-        (_) {
-          if (txns.isNotEmpty && soldItemsFetched.value && txnsFetched.value) {
-            var listToSearchFrom = foundSales.isNotEmpty ? foundSales : sales;
+      var listToSearchFrom = foundSales.isNotEmpty ? foundSales : sales;
 
-            // TODO: should refunded items be loaded as well ???
-            // var txnItems = listToSearchFrom
-            //     .where(
-            //       (soldItem) =>
-            //           soldItem.txnId.toString().contains(txnId.toString()),
-            //     )
-            //     .toList();
-
-            var txnItems = listToSearchFrom.where(
-              (soldItem) {
-                return soldItem.txnId.toString().contains(txnId.toString()) &&
-                    soldItem.quantity > 0;
-              },
-            ).toList();
-
-            transactionItems.assignAll(txnItems);
-          } else {
-            // stop loader
-            txnItemsLoading.value = false;
-            isLoading.value = false;
-            transactionItems.clear();
-            return CPopupSnackBar.warningSnackBar(
-              title: 'items not found',
-              message: 'items NOT found for this txn',
-            );
-          }
+      var txnItems = listToSearchFrom.where(
+        (soldItem) {
+          return soldItem.txnId.toString().contains(txnId.toString()) &&
+              soldItem.quantity > 0;
         },
-      );
+      ).toList();
+
+      transactionItems.assignAll(txnItems);
 
       txnItemsLoading.value = false;
       isLoading.value = false;
@@ -890,10 +869,10 @@ class CTxnsController extends GetxController {
               } else {
                 isLoading.value = false;
                 txnsSyncIsLoading.value = false;
-                CPopupSnackBar.errorSnackBar(
-                  title: 'ERROR SYNCING TXNS TO CLOUD...',
-                  message: 'an error occurred while uploading txns to cloud',
-                );
+                // CPopupSnackBar.errorSnackBar(
+                //   title: 'ERROR SYNCING TXNS TO CLOUD...',
+                //   message: 'an error occurred while uploading txns to cloud',
+                // );
               }
             });
           } else {
@@ -1081,7 +1060,7 @@ class CTxnsController extends GetxController {
     final isDarkTheme = CHelperFunctions.isDarkMode(context);
     return await showModalBottomSheet(
       context: context,
-      isDismissible: false,
+      isDismissible: true,
       isScrollControlled: true,
       useSafeArea: true,
       //transitionAnimationController: ,
@@ -1238,7 +1217,7 @@ class CTxnsController extends GetxController {
                                   soldItem.quantity,
                                   soldItem.itemMetrics,
                                 );
-                            return 'only ${CFormatter.formatItemQtyDisplays(soldItem.quantity, soldItem.itemMetrics)} ${CFormatter.formatItemMetrics(soldItem.itemMetrics, soldItem.quantity)} were sold';
+                            return 'only ${CFormatter.formatItemQtyDisplays(soldItem.quantity, soldItem.itemMetrics)} ${CFormatter.formatItemMetrics(soldItem.itemMetrics, soldItem.quantity)} was/were sold';
                           }
                           return null;
                         },
@@ -1295,7 +1274,7 @@ class CTxnsController extends GetxController {
                           soldItem.quantity -= double.parse(
                             txtRefundQty.text.trim(),
                           );
-
+                          // -- TODO:examine hii total amount mzuri --
                           soldItem.syncAction = soldItem.isSynced == 0
                               ? 'append'
                               : 'update';
@@ -1338,7 +1317,7 @@ class CTxnsController extends GetxController {
                                       '${CFormatter.formatItemQtyDisplays(double.parse(txtRefundQty.text.trim()), soldItem.itemMetrics)} ${CFormatter.formatItemMetrics(soldItem.itemMetrics, double.parse(txtRefundQty.text.trim()))} refunded for ${soldItem.productName}',
                                 );
 
-                                await fetchTxnItems(soldItem.txnId);
+                                await fetchTxns();
                               }
                             }
                           } else {
@@ -1398,9 +1377,10 @@ class CTxnsController extends GetxController {
           ),
         );
       },
-    ).whenComplete(() {
-      onRefundBottomSheetClose();
-    });
+    );
+    // .whenComplete(() {
+    //   onRefundBottomSheetClose();
+    // });
   }
 
   /// -- reset refundQty to 0 when bottomSheetModal dismisses --
@@ -1979,6 +1959,29 @@ class CTxnsController extends GetxController {
     roi.value = inventoryTurn.value * grossProfitPercentage.value;
 
     /// -- TODO: tunataka sales on the house pia --
+  }
+
+  /// -- compute txn item's totals --
+  double txtTotals(CTxnsModel txn, String space) {
+    fetchSoldItems();
+    var salesListToSearchFrom = foundSales.isNotEmpty ? foundSales : sales;
+    var txnItems = salesListToSearchFrom.where(
+      (txnItem) {
+        return txnItem.txnId == txn.txnId;
+      },
+    ).toList();
+
+    var txnTotals = txnItems.fold(
+      0.0,
+      (sum, sale) {
+        var totals = space == 'refunds' || space == 'contact refunds'
+            ? sum + (sale.qtyRefunded * sale.unitSellingPrice)
+            : sum + (sale.quantity * sale.unitSellingPrice);
+        return totals;
+      },
+    );
+
+    return txnTotals;
   }
 
   @override

@@ -1,0 +1,6 @@
+{
+  "editor.cursorStyle": "line-thin",
+  "editor.cursorSurroundingLinesStyle": "all",
+  "vim.cursorStylePerMode.visual": "line-thin",
+  "vim.cursorStylePerMode.replace": "line-thin"
+}

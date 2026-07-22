@@ -37,7 +37,7 @@ class CStoreScreen extends StatelessWidget {
 
     return DefaultTabController(
       animationDuration: Duration(
-        milliseconds: 300,
+        milliseconds: 100,
       ),
       length: 5,
       child: Obx(() {
@@ -131,20 +131,30 @@ class CStoreScreen extends StatelessWidget {
                   bottom: const CTabBar(
                     tabs: [
                       Tab(
-                        child: Text('Inventory'),
+                        child: Text(
+                          'Inventory',
+                        ),
                       ),
 
                       Tab(
-                        child: Text('Receipts'),
+                        child: Text(
+                          'Receipts',
+                        ),
                       ),
                       Tab(
-                        child: Text('Invoices'),
+                        child: Text(
+                          'Invoices',
+                        ),
                       ),
                       Tab(
-                        child: Text('Refunds'),
+                        child: Text(
+                          'Sales (all)',
+                        ),
                       ),
                       Tab(
-                        child: Text('Sales (all)'),
+                        child: Text(
+                          'Refunds',
+                        ),
                       ),
                     ],
                   ),
@@ -178,12 +188,12 @@ class CStoreScreen extends StatelessWidget {
 
                 CTxnItemsListView(
                   forContactScreen: false,
-                  space: 'refunds',
+                  space: 'sales',
                 ),
 
                 CTxnItemsListView(
                   forContactScreen: false,
-                  space: 'sales',
+                  space: 'refunds',
                 ),
               ],
             ),

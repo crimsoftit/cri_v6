@@ -16,7 +16,10 @@ import 'package:intl/intl.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
 
 class CAddUpdateContactForm extends StatelessWidget {
-  const CAddUpdateContactForm({super.key, this.onActionBtnPressed});
+  const CAddUpdateContactForm({
+    super.key,
+    this.onActionBtnPressed,
+  });
 
   final VoidCallback? onActionBtnPressed;
 
@@ -259,7 +262,9 @@ class CAddUpdateContactForm extends StatelessWidget {
                           style: ElevatedButton.styleFrom(
                             foregroundColor:
                                 CColors.rBrown, // foreground (text) color
-                            backgroundColor: CColors.white, // background color
+                            backgroundColor: isDarkTheme
+                                ? CColors.darkGrey
+                                : CColors.white, // background color
                           ),
                           onPressed: () {
                             //Navigator.pop(context, true);

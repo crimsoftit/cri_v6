@@ -144,7 +144,7 @@ class CCutomLineChart extends StatelessWidget {
           maxIncluded: true,
           minIncluded: true,
           reservedSize: 40.0,
-          showTitles: false,
+          showTitles: true,
         ),
       ),
       rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),

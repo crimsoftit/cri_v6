@@ -50,11 +50,11 @@ class CAlertsListView extends StatelessWidget {
             // }
             return Card(
               color: isDarkTheme
-                  ? CColors.rBrown.withValues(alpha: 0.3)
+                  ? CColors.rBrown.withValues(alpha: 0.3,)
                   : CColors.lightGrey,
               margin: EdgeInsets.all(1),
               child: ListTile(
-                contentPadding: EdgeInsets.only(left: 5, right: 10.0),
+                contentPadding: EdgeInsets.only(left: 5, right: 10.0,),
                 leading: CircleAvatar(
                   backgroundColor: isDarkTheme
                       ? CColors.darkGrey

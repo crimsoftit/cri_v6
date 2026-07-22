@@ -2,6 +2,7 @@ import 'package:cri_v6/common/widgets/custom_shapes/containers/rounded_container
 import 'package:cri_v6/common/widgets/login_signup/form_divider.dart';
 import 'package:cri_v6/features/personalization/controllers/user_controller.dart';
 import 'package:cri_v6/features/store/controllers/txns_controller.dart';
+import 'package:cri_v6/features/store/models/txns_model.dart';
 import 'package:cri_v6/utils/constants/colors.dart';
 import 'package:cri_v6/utils/constants/sizes.dart';
 import 'package:cri_v6/utils/helpers/formatter.dart';
@@ -15,6 +16,7 @@ class CIndividualTxnItem extends StatelessWidget {
     this.title,
     required this.space,
     required this.isExpanded,
+    required this.thisTxn,
     required this.txnId,
     this.boxColor,
     this.boxHeight,
@@ -28,6 +30,7 @@ class CIndividualTxnItem extends StatelessWidget {
 
   final bool isExpanded;
   final Color? boxColor;
+  final CTxnsModel thisTxn;
   final double? boxHeight;
   final double? boxWidth;
   final int txnId;
@@ -46,6 +49,8 @@ class CIndividualTxnItem extends StatelessWidget {
     final userCurrency = CHelperFunctions.formatCurrency(
       userController.user.value.currencyCode,
     );
+
+    //var txnItems = txnsController.transactionItems;
 
     if (isExpanded) {
       Future.delayed(
@@ -85,7 +90,7 @@ class CIndividualTxnItem extends StatelessWidget {
           //   bottom: 10.0,
           // ),
           width: boxWidth ?? CHelperFunctions.screenWidth() * .9,
-
+      
           child: Flex(
             direction: Axis.vertical,
             mainAxisSize: MainAxisSize.min,
@@ -112,7 +117,7 @@ class CIndividualTxnItem extends StatelessWidget {
                       ),
                 ),
               ),
-
+      
               if (isExpanded && txnsController.transactionItems.isNotEmpty)
                 Flexible(
                   flex: 1,
@@ -137,7 +142,7 @@ class CIndividualTxnItem extends StatelessWidget {
                     ),
                   ),
                 ),
-
+      
               if (isExpanded && txnsController.transactionItems.isNotEmpty)
                 Flexible(
                   flex: 1,
@@ -159,7 +164,8 @@ class CIndividualTxnItem extends StatelessWidget {
                         controller: _scrollController,
                         itemBuilder: (context, index) {
                           return Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            mainAxisAlignment:
+                                MainAxisAlignment.spaceBetween,
                             //mainAxisSize: MainAxisSize.min,
                             children: [
                               CRoundedContainer(
@@ -201,7 +207,7 @@ class CIndividualTxnItem extends StatelessWidget {
                                       ),
                                 ),
                               ),
-
+      
                               // GestureDetector(
                               //   onTap: () {
                               //     CPopupSnackBar.customToast(
@@ -233,14 +239,7 @@ class CIndividualTxnItem extends StatelessWidget {
                                         if (space != 'refunds' &&
                                             space != 'contact refunds')
                                           PopupMenuItem(
-                                            onTap: () async {
-                                              await txnsController
-                                                  .refundItemActionModal(
-                                                    context,
-                                                    txnsController
-                                                        .transactionItems[index],
-                                                  );
-                                            },
+                                            onTap: () {},
                                             value: 1,
                                             child: Text(
                                               'Refund',
